@@ -1,5 +1,6 @@
-import { Db, MongoClient } from 'mongodb'
+import { Collection, Db, MongoClient } from 'mongodb'
 import { config } from 'dotenv'
+import User from '~/models/schemas/User.schemas'
 
 config()
 
@@ -22,6 +23,10 @@ class DatabaseService {
       console.error('Error connecting to MongoDB', error)
       throw error
     }
+  }
+
+  get users(): Collection<User> {
+    return this.db.collection(process.env.DB_USERS_COLLECTION as string)
   }
 }
 

@@ -1,0 +1,19 @@
+import User from '~/models/schemas/User.schemas'
+import databaseService from './database.services'
+
+class UsersService {
+  async checkEmailExists(email: string) {
+    const user = await databaseService.users.findOne({ email })
+    return Boolean(user)
+  }
+
+  async register(payload: { email: string; password: string }) {
+    const { email, password } = payload
+
+    const result = await databaseService.users.insertOne(new User({ email, password }))
+    return result
+  }
+}
+
+const usersService = new UsersService()
+export default usersService
