@@ -21,3 +21,10 @@ enum TweetType {
   Comment,
   QuoteTweet
 }
+
+export enum TokenType {
+  AccessToken,
+  RefreshToken,
+  ForgotPasswordToken,
+  EmailVerifyToken
+}

@@ -1,6 +1,7 @@
 import express from 'express'
 import { body, validationResult, ContextRunner, ValidationChain } from 'express-validator'
 import { RunnableValidationChains } from 'express-validator/lib/middlewares/schema'
+import { isEmpty } from 'lodash'
 import { HTTP_STATUS } from '~/constants/httpStatus'
 import { EntityError, ErrorWithStatus } from '~/models/Errors'
 
@@ -16,6 +17,10 @@ export const validate = (validation: RunnableValidationChains<ValidationChain>) 
         return next(msg)
       }
       entityErrors.errors[key] = errorObject[key]
+    }
+
+    if (isEmpty(entityErrors.errors)) {
+      return next()
     }
 
     next(entityErrors)
