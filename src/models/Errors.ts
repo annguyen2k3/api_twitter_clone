@@ -14,7 +14,13 @@ export class ErrorWithStatus {
 
 export class EntityError extends ErrorWithStatus {
   errors: ErrorsType
-  constructor({ message = ERRORS_MESSAGES.ENTITY_ERROR, errors }: { message?: string; errors: ErrorsType }) {
+  constructor({
+    message = ERRORS_MESSAGES.ENTITY_ERROR,
+    errors
+  }: {
+    message?: string
+    errors: ErrorsType
+  }) {
     super({ message, status: HTTP_STATUS.UNPROCESSABLE_ENTITY })
     this.errors = errors
   }

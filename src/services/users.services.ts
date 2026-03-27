@@ -36,7 +36,9 @@ class UsersService {
         type: TokenType.AccessToken
       },
       options: {
-        expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN as `${number}${'s' | 'm' | 'h' | 'd' | 'w' | 'y'}` | number
+        expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN as
+          | `${number}${'s' | 'm' | 'h' | 'd' | 'w' | 'y'}`
+          | number
       }
     })
   }
@@ -48,7 +50,9 @@ class UsersService {
         type: TokenType.RefreshToken
       },
       options: {
-        expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN as `${number}${'s' | 'm' | 'h' | 'd' | 'w' | 'y'}` | number
+        expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN as
+          | `${number}${'s' | 'm' | 'h' | 'd' | 'w' | 'y'}`
+          | number
       }
     })
   }
@@ -91,6 +95,13 @@ class UsersService {
       access_token,
       refresh_token
     }
+  }
+
+  async logout(refreshToken: string) {
+    await databaseService.refreshTokens.deleteOne({
+      token: refreshToken
+    })
+    return true
   }
 }
 
