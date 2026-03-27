@@ -84,3 +84,40 @@ export const registerValidator = validate(
     }
   })
 )
+
+export const loginValidator = validate(
+  checkSchema({
+    email: {
+      isEmail: true,
+      trim: true,
+      errorMessage: USER_MESSAGES.EMAIL_INVALID
+    },
+    password: {
+      notEmpty: true,
+      isString: true,
+      isLength: {
+        options: { min: 6, max: 50 }
+      },
+      isStrongPassword: {
+        options: {
+          minLength: 6,
+          minLowercase: 1,
+          minUppercase: 1,
+          minNumbers: 1,
+          minSymbols: 1
+        }
+      },
+      errorMessage: USER_MESSAGES.PASSWORD_INVALID,
+      custom: {
+        options: async (value, { req }) => {
+          const user = await usersService.checkInfoLogin(req.body.email, value)
+          if (user === null) {
+            throw new ErrorWithStatus({ message: USER_MESSAGES.PASSWORD_OR_EMAIL_INVALID, status: 400 })
+          }
+          req.user = user
+          return true
+        }
+      }
+    }
+  })
+)
