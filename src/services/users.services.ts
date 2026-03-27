@@ -3,7 +3,7 @@ import databaseService from './database.services'
 import { LoginReqBody, RegisterReqBody } from '~/models/requests/User.requests'
 import { comparePassword, hashPassword } from '~/utils/bcrypt'
 import { signToken } from '~/utils/jwt'
-import { TokenType } from '~/constants/enums'
+import { TokenType, UserVerifyStatus } from '~/constants/enums'
 import RefreshToken from '~/models/schemas/RefreshToken.schemas'
 import { ObjectId } from 'mongodb'
 
@@ -29,11 +29,12 @@ class UsersService {
     return user ?? null
   }
 
-  private signAccessToken(userId: string) {
+  private signAccessToken({ userId, verify }: { userId: string; verify: UserVerifyStatus }) {
     return signToken({
       payload: {
         user_id: userId,
-        type: TokenType.AccessToken
+        type: TokenType.AccessToken,
+        verify: verify
       },
       options: {
         expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN as
@@ -43,11 +44,12 @@ class UsersService {
     })
   }
 
-  private signRefreshToken(userId: string) {
+  private signRefreshToken({ userId, verify }: { userId: string; verify: UserVerifyStatus }) {
     return signToken({
       payload: {
         user_id: userId,
-        type: TokenType.RefreshToken
+        type: TokenType.RefreshToken,
+        verify: verify
       },
       options: {
         expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN as
@@ -57,8 +59,17 @@ class UsersService {
     })
   }
 
-  private signAccessAndRefreshToken(userId: string) {
-    return Promise.all([this.signAccessToken(userId), this.signRefreshToken(userId)])
+  private signAccessAndRefreshToken({
+    userId,
+    verify
+  }: {
+    userId: string
+    verify: UserVerifyStatus
+  }) {
+    return Promise.all([
+      this.signAccessToken({ userId, verify }),
+      this.signRefreshToken({ userId, verify })
+    ])
   }
 
   async register(payload: RegisterReqBody) {
@@ -70,7 +81,10 @@ class UsersService {
       })
     )
     const user_id = result.insertedId.toString()
-    const [access_token, refresh_token] = await this.signAccessAndRefreshToken(user_id)
+    const [access_token, refresh_token] = await this.signAccessAndRefreshToken({
+      userId: user_id,
+      verify: UserVerifyStatus.Unverified
+    })
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({
         token: refresh_token,
@@ -83,8 +97,8 @@ class UsersService {
     }
   }
 
-  async login(userId: string) {
-    const [access_token, refresh_token] = await this.signAccessAndRefreshToken(userId)
+  async login({ userId, verify }: { userId: string; verify: UserVerifyStatus }) {
+    const [access_token, refresh_token] = await this.signAccessAndRefreshToken({ userId, verify })
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({
         token: refresh_token,
@@ -102,6 +116,34 @@ class UsersService {
       token: refreshToken
     })
     return true
+  }
+
+  async refreshToken({
+    userId,
+    verify,
+    refreshToken
+  }: {
+    userId: string
+    verify: UserVerifyStatus
+    refreshToken: string
+  }) {
+    const [new_access_token, new_refresh_token] = await Promise.all([
+      this.signAccessToken({ userId, verify }),
+      this.signRefreshToken({ userId, verify }),
+      databaseService.refreshTokens.deleteOne({
+        token: refreshToken
+      })
+    ])
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({
+        token: new_refresh_token,
+        user_id: new ObjectId(userId)
+      })
+    )
+    return {
+      access_token: new_access_token,
+      refresh_token: new_refresh_token
+    }
   }
 }
 

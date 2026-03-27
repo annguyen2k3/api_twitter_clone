@@ -1,4 +1,4 @@
-import { TokenType } from '~/constants/enums'
+import { TokenType, UserVerifyStatus } from '~/constants/enums'
 
 export interface RegisterReqBody {
   name: string
@@ -20,4 +20,9 @@ export interface LogoutReqBody {
 export interface TokenPayload {
   user_id: string
   token_type: TokenType
+  verify: UserVerifyStatus
+}
+
+export interface RefreshTokenReqBody {
+  refresh_token: string
 }

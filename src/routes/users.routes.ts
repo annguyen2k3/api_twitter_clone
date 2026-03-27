@@ -2,6 +2,7 @@ import { Router } from 'express'
 import {
   loginController,
   logoutController,
+  refreshTokenController,
   registerController
 } from '~/controllers/users.controllers'
 import {
@@ -53,5 +54,15 @@ userRouter.post(
   refreshTokenValidator,
   wrapRequestHandler(logoutController)
 )
+
+/**
+ * Description: Refresh token
+ * Path: /users/refresh-token
+ * Method: POST
+ * Body: {
+ *   refresh_token: string
+ * }
+ */
+userRouter.post('/refresh-token', refreshTokenValidator, wrapRequestHandler(refreshTokenController))
 
 export default userRouter
