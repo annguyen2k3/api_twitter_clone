@@ -77,17 +77,36 @@ class UsersService {
     ])
   }
 
+  private signEmailVerifyToken(userId: string) {
+    return signToken({
+      payload: {
+        user_id: userId,
+        token_type: TokenType.EmailVerifyToken,
+        verify: UserVerifyStatus.Unverified
+      },
+      privateKey: process.env.JWT_SECRET_EMAIL_VERIFY_TOKEN as string,
+      options: {
+        expiresIn: process.env.EMAIL_VERIFY_TOKEN_EXPIRES_IN as
+          | `${number}${'s' | 'm' | 'h' | 'd' | 'w' | 'y'}`
+          | number
+      }
+    })
+  }
+
   async register(payload: RegisterReqBody) {
-    const result = await databaseService.users.insertOne(
+    const user_id = new ObjectId()
+    const email_verify_token = await this.signEmailVerifyToken(user_id.toString())
+    await databaseService.users.insertOne(
       new User({
         ...payload,
+        _id: user_id,
+        email_verify_token: email_verify_token,
         password: await hashPassword(payload.password),
         date_of_birth: new Date(payload.date_of_birth)
       })
     )
-    const user_id = result.insertedId.toString()
     const [access_token, refresh_token] = await this.signAccessAndRefreshToken({
-      userId: user_id,
+      userId: user_id.toString(),
       verify: UserVerifyStatus.Unverified
     })
     await databaseService.refreshTokens.insertOne(
@@ -96,6 +115,7 @@ class UsersService {
         user_id: new ObjectId(user_id)
       })
     )
+    console.log(email_verify_token)
     return {
       access_token,
       refresh_token
@@ -148,6 +168,27 @@ class UsersService {
     return {
       access_token: new_access_token,
       refresh_token: new_refresh_token
+    }
+  }
+
+  async verifyEmail(userId: string) {
+    const [token] = await Promise.all([
+      this.signAccessAndRefreshToken({ userId, verify: UserVerifyStatus.Verified }),
+      databaseService.users.updateOne(
+        { _id: new ObjectId(userId) },
+        {
+          $set: {
+            email_verify_token: '',
+            verify: UserVerifyStatus.Verified,
+            updated_at: new Date()
+          }
+        }
+      )
+    ])
+    const [access_token, refresh_token] = token
+    return {
+      access_token,
+      refresh_token
     }
   }
 }
