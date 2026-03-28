@@ -7,6 +7,7 @@ import { TokenType, UserVerifyStatus } from '~/constants/enums'
 import RefreshToken from '~/models/schemas/RefreshToken.schemas'
 import { ObjectId } from 'mongodb'
 import { config } from 'dotenv'
+import { USER_MESSAGES } from '~/constants/messages'
 
 config()
 
@@ -115,7 +116,7 @@ class UsersService {
         user_id: new ObjectId(user_id)
       })
     )
-    console.log(email_verify_token)
+    console.log('Verify email token:', email_verify_token)
     return {
       access_token,
       refresh_token
@@ -179,8 +180,10 @@ class UsersService {
         {
           $set: {
             email_verify_token: '',
-            verify: UserVerifyStatus.Verified,
-            updated_at: new Date()
+            verify: UserVerifyStatus.Verified
+          },
+          $currentDate: {
+            updated_at: true
           }
         }
       )
@@ -189,6 +192,18 @@ class UsersService {
     return {
       access_token,
       refresh_token
+    }
+  }
+
+  async resendVerifyEmail(userId: string) {
+    const email_verify_token = await this.signEmailVerifyToken(userId)
+    console.log('Resend verify email token:', email_verify_token)
+    await databaseService.users.updateOne(
+      { _id: new ObjectId(userId) },
+      { $set: { email_verify_token: email_verify_token }, $currentDate: { updated_at: true } }
+    )
+    return {
+      message: USER_MESSAGES.RESEND_VERIFY_EMAIL_SUCCESS
     }
   }
 }

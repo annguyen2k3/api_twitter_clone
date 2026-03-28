@@ -15,6 +15,7 @@ import { USER_MESSAGES } from '~/constants/messages'
 import databaseService from '~/services/database.services'
 import { ObjectId } from 'mongodb'
 import { ErrorWithStatus } from '~/models/Errors'
+import { UserVerifyStatus } from '~/constants/enums'
 
 // POST: /users/register
 export const registerController = async (
@@ -86,8 +87,7 @@ export const verifyEmailController = async (
   }
   if (user.email_verify_token === '') {
     return res.status(HTTP_STATUS.OK).json({
-      message: USER_MESSAGES.EMAIL_ALREADY_VERIFIED_BEFORE,
-      result: user
+      message: USER_MESSAGES.EMAIL_ALREADY_VERIFIED_BEFORE
     })
   }
   const result = await usersService.verifyEmail(user_id)
@@ -95,4 +95,25 @@ export const verifyEmailController = async (
     message: USER_MESSAGES.EMAIL_VERIFY_TOKEN_SUCCESS,
     result
   })
+}
+
+// POST: /users/resend-verify-email
+export const resendVerifyEmailController = async (req: Request, res: Response) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
+  if (!user) {
+    throw new ErrorWithStatus({
+      message: USER_MESSAGES.USER_NOT_FOUND,
+      status: HTTP_STATUS.NOT_FOUND
+    })
+  }
+  if (user.verify === UserVerifyStatus.Verified) {
+    console.log('Email already verified before')
+    return res.status(HTTP_STATUS.OK).json({
+      message: USER_MESSAGES.EMAIL_ALREADY_VERIFIED_BEFORE
+    })
+  }
+  const result = await usersService.resendVerifyEmail(user_id)
+
+  res.status(HTTP_STATUS.OK).json(result)
 }
