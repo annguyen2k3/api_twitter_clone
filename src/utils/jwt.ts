@@ -5,15 +5,15 @@ import { TokenPayload } from '~/models/requests/User.requests'
 
 export const signToken = ({
   payload,
-  privateKey = process.env.JWT_SECRET as string,
+  privateKey,
   options = { algorithm: 'HS256' }
 }: {
   payload: string | Buffer | object
-  privateKey?: Secret | PrivateKey
+  privateKey?: string
   options?: SignOptions
 }) => {
   return new Promise<string>((resolve, reject) => {
-    jwt.sign(payload, privateKey, options, (err, token) => {
+    jwt.sign(payload, privateKey as string, options, (err, token) => {
       if (err) {
         return reject(err)
       }

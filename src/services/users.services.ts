@@ -6,6 +6,9 @@ import { signToken } from '~/utils/jwt'
 import { TokenType, UserVerifyStatus } from '~/constants/enums'
 import RefreshToken from '~/models/schemas/RefreshToken.schemas'
 import { ObjectId } from 'mongodb'
+import { config } from 'dotenv'
+
+config()
 
 class UsersService {
   async checkEmailExists(email: string) {
@@ -36,6 +39,7 @@ class UsersService {
         type: TokenType.AccessToken,
         verify: verify
       },
+      privateKey: process.env.JWT_SECRET_ACCESS_TOKEN as string,
       options: {
         expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN as
           | `${number}${'s' | 'm' | 'h' | 'd' | 'w' | 'y'}`
@@ -51,6 +55,7 @@ class UsersService {
         type: TokenType.RefreshToken,
         verify: verify
       },
+      privateKey: process.env.JWT_SECRET_REFRESH_TOKEN as string,
       options: {
         expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN as
           | `${number}${'s' | 'm' | 'h' | 'd' | 'w' | 'y'}`
