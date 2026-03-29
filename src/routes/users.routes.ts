@@ -19,7 +19,8 @@ import {
   loginValidator,
   refreshTokenValidator,
   registerValidator,
-  resetPasswordValidator
+  resetPasswordValidator,
+  verifiedUserValidator
 } from '~/middlewares/users.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 
@@ -55,7 +56,7 @@ userRouter.post('/login', loginValidator, wrapRequestHandler(loginController))
  * Path: /users/logout
  * Method: POST
  * Headers: {
- *   Authorization: string
+ *   Authorization: Bearer <access_token>
  * }
  * Body: {
  *   refresh_token: string
@@ -97,7 +98,7 @@ userRouter.post(
  * Path: /users/resend-verify-email
  * Method: POST
  * Headers: {
- *   Authorization: string
+ *   Authorization: Bearer <access_token>
  * }
  * Body: {}
  */
@@ -156,9 +157,14 @@ userRouter.post(
  * Path: /users/me
  * Method: GET
  * Headers: {
- *   Authorization: string
+ *   Authorization: Bearer <access_token>
  * }
  */
-userRouter.get('/me', accessTokenValidator, wrapRequestHandler(getMeController))
+userRouter.get(
+  '/me',
+  accessTokenValidator,
+  verifiedUserValidator,
+  wrapRequestHandler(getMeController)
+)
 
 export default userRouter

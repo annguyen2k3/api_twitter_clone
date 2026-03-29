@@ -8,7 +8,7 @@ export const signToken = ({
   privateKey,
   options = { algorithm: 'HS256' }
 }: {
-  payload: string | Buffer | object
+  payload: TokenPayload
   privateKey?: string
   options?: SignOptions
 }) => {

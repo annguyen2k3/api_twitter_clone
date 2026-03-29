@@ -127,7 +127,10 @@ export const forgotPasswordController = async (
   res: Response
 ) => {
   const user = req.user as User
-  const result = await usersService.forgotPassword(user._id!.toString())
+  const result = await usersService.forgotPassword({
+    userId: user._id!.toString(),
+    verify: user.verify
+  })
   res.status(HTTP_STATUS.OK).json(result)
 }
 
