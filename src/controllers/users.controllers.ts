@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import usersService from '~/services/users.services'
 import { ParamsDictionary } from 'express-serve-static-core'
 import {
-  FollowReqBody,
+  FollowReqParams,
   ForgotPasswordReqBody,
   LoginReqBody,
   LogoutReqBody,
@@ -10,6 +10,7 @@ import {
   RegisterReqBody,
   ResetPasswordReqBody,
   TokenPayload,
+  UnfollowReqParams,
   UpdateMeReqBody,
   VerifyEmailReqBody,
   VerifyForgotPasswordReqBody
@@ -181,13 +182,18 @@ export const updateMeController = async (
   })
 }
 
-// POST: /users/:username
-export const followUserController = async (
-  req: Request<ParamsDictionary, any, FollowReqBody>,
-  res: Response
-) => {
+// POST: /users/follow/:user_id
+export const followUserController = async (req: Request<FollowReqParams>, res: Response) => {
   const { user_id } = req.decoded_authorization as TokenPayload
-  const { followed_user_id } = req.body
-  const result = await usersService.followUser(user_id, followed_user_id)
+  const { user_id: follower_user_id } = req.params
+  const result = await usersService.followUser(user_id, follower_user_id)
+  res.status(HTTP_STATUS.OK).json(result)
+}
+
+// DELETE: /users/follow/:user_id
+export const unfollowUserController = async (req: Request<UnfollowReqParams>, res: Response) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { user_id: followed_user_id } = req.params
+  const result = await usersService.unfollowUser(user_id, followed_user_id)
   res.status(HTTP_STATUS.OK).json(result)
 }

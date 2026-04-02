@@ -1,3 +1,5 @@
+import { ParamsDictionary } from 'express-serve-static-core'
+
 import { TokenType, UserVerifyStatus } from '~/constants/enums'
 
 export interface RegisterReqBody {
@@ -56,6 +58,10 @@ export interface UpdateMeReqBody {
   cover_photo?: string
 }
 
-export interface FollowReqBody {
-  followed_user_id: string
+export interface FollowReqParams extends ParamsDictionary {
+  user_id: string
+}
+
+export interface UnfollowReqParams extends ParamsDictionary {
+  user_id: string
 }

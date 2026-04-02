@@ -9,6 +9,7 @@ import {
   registerController,
   resendVerifyEmailController,
   resetPasswordController,
+  unfollowUserController,
   updateMeController,
   verifyEmailController,
   verifyForgotPasswordController
@@ -24,6 +25,7 @@ import {
   refreshTokenValidator,
   registerValidator,
   resetPasswordValidator,
+  unfollowUserValidator,
   updateMeValidator,
   verifiedUserValidator
 } from '~/middlewares/users.middlewares'
@@ -201,19 +203,34 @@ userRouter.patch(
 
 /**
  * Description: Follower someone
- * Path: /users/follow
+ * Path: /users/follow/:user_id
  * Method: POST
  * Headers: {
  *   Authorization: Bearer <access_token>
  * }
- * Body: { followed_user_id: string }
  */
 userRouter.post(
-  '/follow',
+  '/follow/:user_id',
   accessTokenValidator,
   verifiedUserValidator,
   followUserValidator,
-  wrapRequestHandler(followUserController)
+  wrapRequestHandler(followUserController as any)
+)
+
+/**
+ * Description: Unfollow someone
+ * Path: /users/follow/:user_id
+ * Method: DELETE
+ * Headers: {
+ *   Authorization: Bearer <access_token>
+ * }
+ */
+userRouter.delete(
+  '/follow/:user_id',
+  accessTokenValidator,
+  verifiedUserValidator,
+  unfollowUserValidator,
+  wrapRequestHandler(unfollowUserController as any)
 )
 
 export default userRouter
