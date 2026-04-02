@@ -8,6 +8,7 @@ import RefreshToken from '~/models/schemas/RefreshToken.schemas'
 import { ObjectId } from 'mongodb'
 import { config } from 'dotenv'
 import { USER_MESSAGES } from '~/constants/messages'
+import Follower from '~/models/schemas/Follower.schemas'
 
 config()
 
@@ -284,6 +285,26 @@ class UsersService {
       }
     )
     return user ?? null
+  }
+
+  async followUser(userId: string, followedUserId: string) {
+    const followered = await databaseService.followers.findOne({
+      user_id: new ObjectId(userId),
+      followed_user_id: new ObjectId(followedUserId)
+    })
+    if (followered === null) {
+      const follower = new Follower({
+        user_id: new ObjectId(userId),
+        followed_user_id: new ObjectId(followedUserId)
+      })
+      await databaseService.followers.insertOne(follower)
+      return {
+        message: USER_MESSAGES.FOLLOW_USER_SUCCESS
+      }
+    }
+    return {
+      message: USER_MESSAGES.FOLLOWED
+    }
   }
 }
 

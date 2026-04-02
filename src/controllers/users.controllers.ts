@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import usersService from '~/services/users.services'
 import { ParamsDictionary } from 'express-serve-static-core'
 import {
+  FollowReqBody,
   ForgotPasswordReqBody,
   LoginReqBody,
   LogoutReqBody,
@@ -166,6 +167,7 @@ export const getMeController = async (req: Request, res: Response) => {
   })
 }
 
+// PATCH: /users/me
 export const updateMeController = async (
   req: Request<ParamsDictionary, any, UpdateMeReqBody>,
   res: Response
@@ -177,4 +179,15 @@ export const updateMeController = async (
     message: USER_MESSAGES.UPDATE_ME_SUCCESS,
     user
   })
+}
+
+// POST: /users/:username
+export const followUserController = async (
+  req: Request<ParamsDictionary, any, FollowReqBody>,
+  res: Response
+) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { followed_user_id } = req.body
+  const result = await usersService.followUser(user_id, followed_user_id)
+  res.status(HTTP_STATUS.OK).json(result)
 }
