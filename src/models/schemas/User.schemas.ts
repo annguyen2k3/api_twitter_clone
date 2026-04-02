@@ -43,7 +43,9 @@ class User {
   constructor(user: UserType) {
     const date = new Date()
 
-    this._id = user._id
+    const id = user._id || new ObjectId()
+
+    this._id = id
     this.name = user.name || ''
     this.email = user.email
     this.date_of_birth = user.date_of_birth || new Date()
@@ -56,7 +58,7 @@ class User {
     this.bio = user.bio || ''
     this.location = user.location || ''
     this.website = user.website || ''
-    this.username = user.username || ''
+    this.username = user.username || id.toString()
     this.avatar = user.avatar || ''
     this.cover_photo = user.cover_photo || ''
   }
