@@ -10,6 +10,7 @@ export const USER_MESSAGES = {
   PASSWORD_INVALID:
     'Password is string have at least 6 and at most 50 characters, at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character',
   PASSWORD_CONFIRM_NOT_MATCH: 'Confirm password do not match with password',
+  OLD_PASSWORD_IS_INCORRECT: 'Old password is incorrect',
   DATE_OF_BIRTH_INVALID: 'Date of birth is ISO 8601 format',
   USER_NOT_FOUND: 'User not found',
   PASSWORD_OR_EMAIL_INVALID: 'Password or email is incorrect',
@@ -55,5 +56,6 @@ export const USER_MESSAGES = {
   FOLLOW_USER_SUCCESS: 'Follow user successfully',
   FOLLOWED: 'Followed',
   ALREADY_UNFOLLOWED: 'Already unfollowed',
-  UNFOLLOW_USER_SUCCESS: 'Unfollow user successfully'
+  UNFOLLOW_USER_SUCCESS: 'Unfollow user successfully',
+  CHANGE_PASSWORD_SUCCESS: 'Change password successfully'
 } as const
