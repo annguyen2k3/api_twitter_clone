@@ -34,5 +34,18 @@ export const USER_MESSAGES = {
   FORGOT_PASSWORD_TOKEN_VERIFY_SUCCESS: 'Forgot password token verify successfully',
   RESET_PASSWORD_SUCCESS: 'Reset password successfully',
   GET_ME_SUCCESS: 'Get my profile successfully',
-  USER_NOT_VERIFIED: 'User not verified'
+  USER_NOT_VERIFIED: 'User not verified',
+  BIO_MUST_BE_STRING: 'Bio must be a string',
+  BIO_LENGTH: 'Bio must be at least 1 and at most 200 characters',
+  LOCATION_MUST_BE_STRING: 'Location must be a string',
+  LOCATION_LENGTH: 'Location must be at least 1 and at most 200 characters',
+  WEBSITE_MUST_BE_STRING: 'Website must be a string',
+  WEBSITE_LENGTH: 'Website must be at least 1 and at most 200 characters',
+  USERNAME_MUST_BE_STRING: 'Username must be a string',
+  USERNAME_LENGTH: 'Username must be at least 1 and at most 50 characters',
+  AVATAR_MUST_BE_STRING: 'Avatar must be a string',
+  COVER_PHOTO_MUST_BE_STRING: 'Cover photo must be a string',
+  IMG_URL_MUST_BE_STRING: 'Image URL must be a string',
+  IMG_URL_LENGTH: 'Image URL must be at least 1 and at most 400 characters',
+  UPDATE_ME_SUCCESS: 'Update my profile successfully'
 } as const

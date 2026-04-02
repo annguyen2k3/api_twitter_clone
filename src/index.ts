@@ -2,7 +2,7 @@ import express from 'express'
 import dotenv from 'dotenv'
 import databaseService from './services/database.services'
 import indexRoutes from './routes/index.routes'
-import { defaultErrorHandler } from './middlewares/errors.middleware'
+import { defaultErrorHandler } from './middlewares/errors.middlewares'
 
 dotenv.config()
 
