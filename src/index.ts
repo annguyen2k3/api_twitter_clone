@@ -4,6 +4,7 @@ import databaseService from './services/database.services'
 import indexRoutes from './routes/index.routes'
 import { defaultErrorHandler } from './middlewares/errors.middlewares'
 import { initFolder } from './utils/file'
+import { UPLOAD_DIR } from './constants/dir'
 
 dotenv.config()
 
@@ -15,6 +16,8 @@ databaseService.connect()
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+app.use('/static', express.static(UPLOAD_DIR))
 
 indexRoutes(app)
 
