@@ -3,8 +3,11 @@ import dotenv from 'dotenv'
 import databaseService from './services/database.services'
 import indexRoutes from './routes/index.routes'
 import { defaultErrorHandler } from './middlewares/errors.middlewares'
+import { initFolder } from './utils/file'
 
 dotenv.config()
+
+initFolder()
 
 const app = express()
 
@@ -21,6 +24,6 @@ app.get('/', (req, res) => {
 
 app.use(defaultErrorHandler)
 
-app.listen(3000, () => {
-  console.log('Server is running on http://localhost:3000')
+app.listen(process.env.PORT || 3000, () => {
+  console.log('Server is running on port', process.env.PORT || 3000)
 })
