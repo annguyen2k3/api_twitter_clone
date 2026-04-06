@@ -7,15 +7,15 @@ interface Media {
   url: string
   type: MediaType // video, image
 }
-enum MediaType {
+export enum MediaType {
   Image,
   Video
 }
-enum TweetAudience {
+export enum TweetAudience {
   Everyone, // 0
   TwitterCircle // 1
 }
-enum TweetType {
+export enum TweetType {
   Tweet,
   Retweet,
   Comment,
