@@ -9,7 +9,8 @@ interface Media {
 }
 export enum MediaType {
   Image,
-  Video
+  Video,
+  HLS
 }
 export enum TweetAudience {
   Everyone, // 0
