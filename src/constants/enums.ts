@@ -29,3 +29,10 @@ export enum TokenType {
   ForgotPasswordToken,
   EmailVerifyToken
 }
+
+export enum EncodingStatus {
+  Pending,
+  Processing,
+  Success,
+  Failed
+}

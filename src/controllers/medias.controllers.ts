@@ -112,3 +112,10 @@ export const serveSegmentController = async (req: Request, res: Response, next: 
     }
   })
 }
+
+// GET: /medias/video-status/:id
+export const getVideoStatusController = async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params
+  const videoStatus = await mediasService.getVideoStatus(id as string)
+  return res.json({ message: USER_MESSAGES.GET_VIDEO_STATUS_SUCCESS, result: videoStatus })
+}
