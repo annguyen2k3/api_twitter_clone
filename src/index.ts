@@ -5,6 +5,7 @@ import indexRoutes from './routes/index.routes'
 import { defaultErrorHandler } from './middlewares/errors.middlewares'
 import { initFolder } from './utils/file'
 import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from './constants/dir'
+import cors from 'cors'
 
 dotenv.config()
 
@@ -13,6 +14,8 @@ initFolder()
 const app = express()
 
 databaseService.connect()
+
+app.use(cors())
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))

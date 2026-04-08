@@ -90,3 +90,25 @@ export const uploadVideoHLSController = async (req: Request, res: Response, next
   const url = await mediasService.uploadVideoHLS(req)
   return res.json({ message: USER_MESSAGES.UPLOAD_SUCCESS, result: url })
 }
+
+// GET: /static/video-hls/:id/master.m3u8
+export const serveM3u8Controller = async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params
+  const videoPath = path.resolve(UPLOAD_VIDEO_DIR, id as string, 'master.m3u8')
+  return res.sendFile(videoPath, (err) => {
+    if (err) {
+      res.status((err as any).status).send('Not found')
+    }
+  })
+}
+
+// GET: /static/video-hls/:id/:v/:segment
+export const serveSegmentController = async (req: Request, res: Response, next: NextFunction) => {
+  const { id, v, segment } = req.params
+  const videoPath = path.resolve(UPLOAD_VIDEO_DIR, id as string, v as string, `${segment}`)
+  return res.sendFile(videoPath, (err) => {
+    if (err) {
+      res.status((err as any).status).send('Not found')
+    }
+  })
+}
