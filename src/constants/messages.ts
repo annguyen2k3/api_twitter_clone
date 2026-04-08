@@ -58,5 +58,6 @@ export const USER_MESSAGES = {
   ALREADY_UNFOLLOWED: 'Already unfollowed',
   UNFOLLOW_USER_SUCCESS: 'Unfollow user successfully',
   CHANGE_PASSWORD_SUCCESS: 'Change password successfully',
-  UPLOAD_SUCCESS: 'Upload successfully'
+  UPLOAD_SUCCESS: 'Upload successfully',
+  GET_VIDEO_STATUS_SUCCESS: 'Get video status successfully'
 } as const

@@ -104,7 +104,7 @@ export const handleUploadVideoHLS = async (req: Request) => {
     uploadDir: folderPath,
     maxFiles: 1,
     maxFileSize: 1024 * 1024 * 50, // 50MB
-    keepExtensions: true,
+    // keepExtensions: true,
     filter: ({ name, originalFilename, mimetype }) => {
       const valid = Boolean(mimetype?.includes('video/'))
       if (!valid) {
@@ -131,6 +131,19 @@ export const handleUploadVideoHLS = async (req: Request) => {
       if (!Boolean(files.video)) {
         return reject(new EntityError({ errors: { video: { msg: 'File is empty', value: '' } } }))
       }
+      const videos = files.video as File[]
+      videos.forEach((video) => {
+        const ext = path.extname(video.originalFilename as string)
+        const newPath = video.filepath + ext
+
+        fs.renameSync(video.filepath, newPath)
+
+        video.filepath = newPath
+        video.newFilename = video.newFilename + ext
+
+        console.log('filepath:', video.filepath)
+        console.log('newFilename:', video.newFilename)
+      })
       resolve(files.video as File[])
     })
   })
