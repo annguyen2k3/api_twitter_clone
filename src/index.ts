@@ -13,7 +13,12 @@ initFolder()
 
 const app = express()
 
-databaseService.connect()
+databaseService.connect().then(() => {
+  databaseService.indexUser()
+  databaseService.indexRefreshTokens()
+  databaseService.indexVideoStatus()
+  databaseService.indexFollowers()
+})
 
 app.use(cors())
 

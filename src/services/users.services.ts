@@ -9,6 +9,8 @@ import { ObjectId } from 'mongodb'
 import { config } from 'dotenv'
 import { USER_MESSAGES } from '~/constants/messages'
 import Follower from '~/models/schemas/Follower.schemas'
+import { ErrorWithStatus } from '~/models/Errors'
+import { HTTP_STATUS } from '~/constants/httpStatus'
 
 config()
 
@@ -173,15 +175,29 @@ class UsersService {
   async refreshToken({
     userId,
     verify,
-    refreshToken
+    refreshToken,
+    exp
   }: {
     userId: string
     verify: UserVerifyStatus
     refreshToken: string
+    exp: number
   }) {
+    const remaining_seconds = Math.floor((exp * 1000 - Date.now()) / 1000)
+    if (remaining_seconds <= 0) {
+      throw new ErrorWithStatus({
+        message: USER_MESSAGES.REFRESH_TOKEN_EXPIRED,
+        status: HTTP_STATUS.UNAUTHORIZED
+      })
+    }
+    const expiresIn = remaining_seconds
     const [new_access_token, new_refresh_token] = await Promise.all([
       this.signAccessToken({ userId, verify }),
-      this.signRefreshToken({ userId, verify }),
+      signToken({
+        payload: { user_id: userId, token_type: TokenType.RefreshToken, verify },
+        privateKey: process.env.JWT_SECRET_REFRESH_TOKEN as string,
+        options: { expiresIn }
+      }),
       databaseService.refreshTokens.deleteOne({
         token: refreshToken
       })
