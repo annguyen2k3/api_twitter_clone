@@ -4,6 +4,7 @@ import User from '~/models/schemas/User.schemas'
 import RefreshToken from '~/models/schemas/RefreshToken.schemas'
 import Follower from '~/models/schemas/Follower.schemas'
 import VideoStatus from '~/models/schemas/VideoStatus.schemas'
+import { UserVerifyStatus } from '~/constants/enums'
 
 config()
 
@@ -25,6 +26,36 @@ class DatabaseService {
     } catch (error) {
       console.error('Error connecting to MongoDB', error)
       throw error
+    }
+  }
+
+  async indexUser() {
+    const exists = await this.users.indexExists(['email_1_password_1', 'email_1', 'username_1'])
+    if (!exists) {
+      this.users.createIndex({ email: 1, password: 1 })
+      this.users.createIndex({ email: 1 }, { unique: true })
+      this.users.createIndex({ username: 1 }, { unique: true })
+    }
+  }
+
+  async indexRefreshTokens() {
+    const exists = await this.refreshTokens.indexExists(['token_1'])
+    if (!exists) {
+      this.refreshTokens.createIndex({ token: 1 })
+    }
+  }
+
+  async indexVideoStatus() {
+    const exists = await this.videoStatus.indexExists(['name_1'])
+    if (!exists) {
+      this.videoStatus.createIndex({ name: 1 })
+    }
+  }
+
+  async indexFollowers() {
+    const exists = await this.followers.indexExists(['user_id_1_followed_user_id_1'])
+    if (!exists) {
+      this.followers.createIndex({ user_id: 1, followed_user_id: 1 })
     }
   }
 

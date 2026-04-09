@@ -140,9 +140,6 @@ export const handleUploadVideoHLS = async (req: Request) => {
 
         video.filepath = newPath
         video.newFilename = video.newFilename + ext
-
-        console.log('filepath:', video.filepath)
-        console.log('newFilename:', video.newFilename)
       })
       resolve(files.video as File[])
     })
