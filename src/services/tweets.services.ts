@@ -21,7 +21,6 @@ class TweetsService {
 
   async createTweet(userId: string, payload: TweetReqBody) {
     const hashTags = await this.checkAndCreateHashtags(payload.hashtags)
-    console.log(hashTags)
     const result = await databaseService.tweets.insertOne(
       new Tweet({
         type: payload.type,
