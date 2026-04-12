@@ -19,3 +19,17 @@ export const bookmarkTweetController = async (
     result
   })
 }
+
+// DELETE: /bookmarks/
+export const unbookmarkTweetController = async (
+  req: Request<ParamsDictionary, any, BookmarkReqBody>,
+  res: Response
+) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { tweet_id } = req.params
+  const result = await bookmarksService.unbookmarkTweet(user_id, tweet_id as string)
+  res.status(HTTP_STATUS.OK).json({
+    message: BOOKMARK_MESSAGES.UNBOOKMARK_TWEET_SUCCESS,
+    result
+  })
+}
