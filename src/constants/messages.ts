@@ -64,6 +64,8 @@ export const USER_MESSAGES = {
 } as const
 
 export const TWEET_MESSAGES = {
+  TWEET_ID_IS_INVALID: 'Tweet ID is invalid',
+  TWEET_NOT_FOUND: 'Tweet not found',
   TYPE_IS_INVALID: 'Type is invalid',
   AUDIENCE_IS_INVALID: 'Audience is invalid',
   PARENT_ID_IS_INVALID: 'Parent ID is invalid',
