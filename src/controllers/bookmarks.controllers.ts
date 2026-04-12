@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { HTTP_STATUS } from '~/constants/httpStatus'
 import { BOOKMARK_MESSAGES } from '~/constants/messages'
-import { BookmarkReqBody } from '~/models/requests/Bookmark.requests'
+import { BookmarkReqBody, UnbookmarkReqParams } from '~/models/requests/Bookmark.requests'
 import { TokenPayload } from '~/models/requests/User.requests'
 import bookmarksService from '~/services/bookmarks.services'
 
@@ -22,7 +22,7 @@ export const bookmarkTweetController = async (
 
 // DELETE: /bookmarks/
 export const unbookmarkTweetController = async (
-  req: Request<ParamsDictionary, any, BookmarkReqBody>,
+  req: Request<UnbookmarkReqParams>,
   res: Response
 ) => {
   const { user_id } = req.decoded_authorization as TokenPayload
