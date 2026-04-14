@@ -18,3 +18,11 @@ export const createTweetController = async (
     result
   })
 }
+
+// GET: /tweets/:tweet_id
+export const getTweetDetailController = async (req: Request, res: Response) => {
+  res.status(HTTP_STATUS.OK).json({
+    message: TWEET_MESSAGES.GET_TWEET_DETAIL_SUCCESS,
+    result: req.tweet
+  })
+}

@@ -4,6 +4,7 @@ export const ERRORS_MESSAGES = {
 } as const
 
 export const USER_MESSAGES = {
+  USER_NOT_LOGGED_IN: 'User not logged in',
   NAME_IS_REQUIRED: 'Name is string have at least 1 and at most 100 characters',
   EMAIL_INVALID: 'Email is invalid',
   EMAIL_ALREADY_EXISTS: 'Email already exists',
@@ -66,6 +67,8 @@ export const USER_MESSAGES = {
 export const TWEET_MESSAGES = {
   TWEET_ID_IS_INVALID: 'Tweet ID is invalid',
   TWEET_NOT_FOUND: 'Tweet not found',
+  GET_TWEET_DETAIL_SUCCESS: 'Get tweet detail successfully',
+  TWEET_IS_NOT_PUBLIC: 'Tweet is not public',
   TYPE_IS_INVALID: 'Type is invalid',
   AUDIENCE_IS_INVALID: 'Audience is invalid',
   PARENT_ID_IS_INVALID: 'Parent ID is invalid',
