@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
+import { TweetType } from '~/constants/enums'
 import { HTTP_STATUS } from '~/constants/httpStatus'
 import { TWEET_MESSAGES } from '~/constants/messages'
 import { TweetReqBody } from '~/models/requests/Tweet.requests'
@@ -34,5 +35,28 @@ export const getTweetDetailController = async (req: Request, res: Response) => {
   res.status(HTTP_STATUS.OK).json({
     message: TWEET_MESSAGES.GET_TWEET_DETAIL_SUCCESS,
     result: tweet
+  })
+}
+
+// GET: /tweets/:tweet_id/children
+export const getTweetChildrenController = async (req: Request, res: Response) => {
+  const tweet_type = Number(req.query.tweet_type as string) as TweetType
+  const limit = Number.parseInt(req.query.limit as string) || 10
+  const page = Number.parseInt(req.query.page as string) || 1
+  const { tweets, total } = await tweetsService.getTweetChildren({
+    tweetId: req.params.tweet_id as string,
+    page,
+    limit,
+    tweetType: tweet_type
+  })
+  res.status(HTTP_STATUS.OK).json({
+    message: TWEET_MESSAGES.GET_TWEET_CHILDREN_SUCCESS,
+    result: {
+      tweets,
+      tweet_type,
+      limit,
+      page,
+      total_page: Math.ceil(total / limit)
+    }
   })
 }
