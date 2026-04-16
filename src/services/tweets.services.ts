@@ -68,14 +68,16 @@ class TweetsService {
     tweetId,
     page,
     limit,
-    tweetType
+    tweetType,
+    userId
   }: {
     tweetId: string
     page: number
     limit: number
     tweetType: TweetType
+    userId: string
   }) {
-    const tweet = await databaseService.tweets
+    const tweets = await databaseService.tweets
       .aggregate<Tweet>([
         {
           $match: {
@@ -230,12 +232,33 @@ class TweetsService {
       ])
       .toArray()
 
-    const total = await databaseService.tweets.countDocuments({
-      parent_id: new ObjectId(tweetId),
-      type: tweetType
+    const ids = tweets.map((tweet) => tweet._id as ObjectId)
+    const inc = userId ? { user_views: 1 } : { guest_views: 1 }
+    const date = new Date()
+
+    const [, total] = await Promise.all([
+      databaseService.tweets.updateMany(
+        { _id: { $in: ids } },
+        {
+          $inc: inc,
+          $set: {
+            updated_at: date
+          }
+        }
+      ),
+      databaseService.tweets.countDocuments({
+        parent_id: new ObjectId(tweetId),
+        type: tweetType
+      })
+    ])
+
+    tweets.forEach((tweet) => {
+      tweet.updated_at = date
+      if (userId) tweet.user_views++
+      else tweet.guest_views++
     })
     return {
-      tweets: tweet,
+      tweets: tweets,
       total: total
     }
   }
