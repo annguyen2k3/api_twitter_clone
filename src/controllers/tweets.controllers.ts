@@ -3,7 +3,7 @@ import { ParamsDictionary } from 'express-serve-static-core'
 import { TweetType } from '~/constants/enums'
 import { HTTP_STATUS } from '~/constants/httpStatus'
 import { TWEET_MESSAGES } from '~/constants/messages'
-import { TweetReqBody } from '~/models/requests/Tweet.requests'
+import { TweetParam, TweetQuery, TweetReqBody } from '~/models/requests/Tweet.requests'
 import { TokenPayload } from '~/models/requests/User.requests'
 import tweetsService from '~/services/tweets.services'
 
@@ -39,7 +39,10 @@ export const getTweetDetailController = async (req: Request, res: Response) => {
 }
 
 // GET: /tweets/:tweet_id/children
-export const getTweetChildrenController = async (req: Request, res: Response) => {
+export const getTweetChildrenController = async (
+  req: Request<TweetParam, any, any, TweetQuery>,
+  res: Response
+) => {
   const tweet_type = Number(req.query.tweet_type as string) as TweetType
   const limit = Number.parseInt(req.query.limit as string) || 10
   const page = Number.parseInt(req.query.page as string) || 1

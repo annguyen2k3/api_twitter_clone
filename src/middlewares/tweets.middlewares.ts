@@ -322,3 +322,32 @@ export const audienceValidator = wrapRequestHandler(
     next()
   }
 )
+
+export const getTweetChildrenValidator = validate(
+  checkSchema(
+    {
+      tweet_type: {
+        isIn: {
+          options: [tweetTypes],
+          errorMessage: TWEET_MESSAGES.TYPE_IS_INVALID
+        }
+      },
+      limit: {
+        isNumeric: true,
+        custom: {
+          options: async (value, { req }) => {
+            const num = Number(value)
+            if (num < 1 || num > 100) {
+              throw new Error(TWEET_MESSAGES.LIMIT_MUST_BE_BETWEEN_1_AND_100)
+            }
+            return true
+          }
+        }
+      },
+      page: {
+        isNumeric: true
+      }
+    },
+    ['query']
+  )
+)
