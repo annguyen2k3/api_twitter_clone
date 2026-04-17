@@ -282,7 +282,17 @@ class UsersService {
       { _id: new ObjectId(userId) },
       { projection: { password: 0, email_verify_token: 0, forgot_password_token: 0 } }
     )
-    return user ?? null
+    const follower = await databaseService.followers.countDocuments({
+      followed_user_id: new ObjectId(userId)
+    })
+    const followed = await databaseService.followers.countDocuments({
+      user_id: new ObjectId(userId)
+    })
+    return {
+      ...user,
+      follower,
+      followed
+    }
   }
 
   async updateMe(userId: string, payload: UpdateMeReqBody) {
