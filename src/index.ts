@@ -6,7 +6,6 @@ import { defaultErrorHandler } from './middlewares/errors.middlewares'
 import { initFolder } from './utils/file'
 import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from './constants/dir'
 import cors from 'cors'
-import { TweetType } from './constants/enums'
 
 dotenv.config()
 
