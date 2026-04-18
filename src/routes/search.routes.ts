@@ -26,8 +26,8 @@ const searchRouter = Router()
 searchRouter.get(
   '/',
   paginationValidator,
-  isUserLoggedInValidator(accessTokenValidator),
-  isUserLoggedInValidator(verifiedUserValidator),
+  accessTokenValidator,
+  verifiedUserValidator,
   wrapRequestHandler(searchController)
 )
 

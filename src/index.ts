@@ -4,7 +4,6 @@ import databaseService from './services/database.services'
 import indexRoutes from './routes/index.routes'
 import { defaultErrorHandler } from './middlewares/errors.middlewares'
 import { initFolder } from './utils/file'
-import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from './constants/dir'
 import cors from 'cors'
 
 dotenv.config()
@@ -18,6 +17,7 @@ databaseService.connect().then(() => {
   databaseService.indexRefreshTokens()
   databaseService.indexVideoStatus()
   databaseService.indexFollowers()
+  databaseService.indexTweets()
 })
 
 app.use(cors())
