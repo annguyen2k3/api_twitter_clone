@@ -1,9 +1,11 @@
 import { Router } from 'express'
 import {
   createTweetController,
+  getNewFeedsController,
   getTweetChildrenController,
   getTweetDetailController
 } from '~/controllers/tweets.controllers'
+import { paginationValidator } from '~/middlewares/common.middlewares'
 import {
   audienceValidator,
   createTweetValidator,
@@ -34,6 +36,26 @@ tweetsRouter.post(
   verifiedUserValidator,
   createTweetValidator,
   wrapRequestHandler(createTweetController)
+)
+
+/**
+ * Description: Get new feeds
+ * Path: /tweets/new-feeds
+ * Method: GET
+ * Headers: {
+ *   Authorization: Bearer <access_token> (optional)
+ * }
+ * Query: {
+ *   page: number
+ *   limit: number
+ * }
+ */
+tweetsRouter.get(
+  '/new-feeds',
+  paginationValidator,
+  isUserLoggedInValidator(accessTokenValidator),
+  isUserLoggedInValidator(verifiedUserValidator),
+  wrapRequestHandler(getNewFeedsController)
 )
 
 /**
@@ -69,6 +91,7 @@ tweetsRouter.get(
 tweetsRouter.get(
   '/:tweet_id/children',
   tweetIdValidator,
+  paginationValidator,
   getTweetChildrenValidator,
   isUserLoggedInValidator(accessTokenValidator),
   isUserLoggedInValidator(verifiedUserValidator),

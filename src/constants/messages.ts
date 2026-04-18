@@ -3,6 +3,10 @@ export const ERRORS_MESSAGES = {
   ENTITY_ERROR: 'Entity error'
 } as const
 
+export const COMMON_MESSAGES = {
+  LIMIT_MUST_BE_BETWEEN_1_AND_100: 'Limit must be between 1 and 100'
+} as const
+
 export const USER_MESSAGES = {
   USER_NOT_LOGGED_IN: 'User not logged in',
   NAME_IS_REQUIRED: 'Name is string have at least 1 and at most 100 characters',
@@ -80,7 +84,8 @@ export const TWEET_MESSAGES = {
   MEDIAS_MUST_BE_AN_ARRAY_OF_MEDIA_OBJECT: 'Medias must be an array of media object',
   CREATE_TWEET_SUCCESS: 'Create tweet successfully',
   GET_TWEET_CHILDREN_SUCCESS: 'Get tweet children successfully',
-  LIMIT_MUST_BE_BETWEEN_1_AND_100: 'Limit must be between 1 and 100'
+  LIMIT_MUST_BE_BETWEEN_1_AND_100: 'Limit must be between 1 and 100',
+  GET_NEW_FEEDS_SUCCESS: 'Get new feeds successfully'
 } as const
 
 export const BOOKMARK_MESSAGES = {

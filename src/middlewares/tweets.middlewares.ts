@@ -131,7 +131,7 @@ export const tweetIdValidator = validate(
             .aggregate<Tweet>([
               {
                 $match: {
-                  _id: new ObjectId('69dda307c4ad7147dcc04905')
+                  _id: new ObjectId(value)
                 }
               },
               {
@@ -139,14 +139,14 @@ export const tweetIdValidator = validate(
                   from: 'users',
                   localField: 'user_id',
                   foreignField: '_id',
-                  as: 'author'
+                  as: 'user'
                 }
               },
               {
                 $addFields: {
-                  author: {
+                  user: {
                     $map: {
-                      input: '$author',
+                      input: '$user',
                       as: 'item',
                       in: {
                         _id: '$$item._id',
@@ -269,7 +269,7 @@ export const tweetIdValidator = validate(
               },
               {
                 $unwind: {
-                  path: '$author'
+                  path: '$user'
                 }
               }
             ])
@@ -331,21 +331,6 @@ export const getTweetChildrenValidator = validate(
           options: [tweetTypes],
           errorMessage: TWEET_MESSAGES.TYPE_IS_INVALID
         }
-      },
-      limit: {
-        isNumeric: true,
-        custom: {
-          options: async (value, { req }) => {
-            const num = Number(value)
-            if (num < 1 || num > 100) {
-              throw new Error(TWEET_MESSAGES.LIMIT_MUST_BE_BETWEEN_1_AND_100)
-            }
-            return true
-          }
-        }
-      },
-      page: {
-        isNumeric: true
       }
     },
     ['query']
