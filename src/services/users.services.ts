@@ -11,6 +11,7 @@ import { USER_MESSAGES } from '~/constants/messages'
 import Follower from '~/models/schemas/Follower.schemas'
 import { ErrorWithStatus } from '~/models/Errors'
 import { HTTP_STATUS } from '~/constants/httpStatus'
+import emailService from './email.services'
 
 config()
 
@@ -144,7 +145,7 @@ class UsersService {
         user_id: new ObjectId(user_id)
       })
     )
-    console.log('Verify email token:', email_verify_token)
+    await emailService.sendVerifyRegisterEmail(payload.email, email_verify_token)
     return {
       access_token,
       refresh_token
@@ -237,12 +238,14 @@ class UsersService {
     }
   }
 
-  async resendVerifyEmail(userId: string) {
+  async resendVerifyEmail(userId: string, email: string) {
     const email_verify_token = await this.signEmailVerifyToken({
       userId,
       verify: UserVerifyStatus.Unverified
     })
-    console.log('Resend verify email token:', email_verify_token)
+
+    await emailService.sendVerifyRegisterEmail(email, email_verify_token)
+
     await databaseService.users.updateOne(
       { _id: new ObjectId(userId) },
       { $set: { email_verify_token: email_verify_token }, $currentDate: { updated_at: true } }
@@ -252,15 +255,22 @@ class UsersService {
     }
   }
 
-  async forgotPassword({ userId, verify }: { userId: string; verify: UserVerifyStatus }) {
+  async forgotPassword({
+    userId,
+    verify,
+    email
+  }: {
+    userId: string
+    verify: UserVerifyStatus
+    email: string
+  }) {
     const forgot_password_token = await this.signForgotPasswordToken({ userId, verify })
     await databaseService.users.updateOne(
       { _id: new ObjectId(userId) },
       { $set: { forgot_password_token: forgot_password_token }, $currentDate: { updated_at: true } }
     )
 
-    // Gửi mail đến user để reset password
-    console.log('Forgot password token:', forgot_password_token)
+    await emailService.sendForgotPasswordEmail(email, forgot_password_token)
     return {
       message: USER_MESSAGES.CHECK_EMAIL_TO_RESET_PASSWORD
     }

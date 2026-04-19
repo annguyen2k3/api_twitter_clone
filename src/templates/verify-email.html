@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f5f5f5;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    .email-container {
+      max-width: 600px;
+      margin: 40px auto;
+      background-color: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .email-header {
+      background: linear-gradient(135deg, #1da1f2 0%, #0d8ed9 100%);
+      padding: 40px 30px;
+      text-align: center;
+    }
+
+    .email-header h1 {
+      color: #ffffff;
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .email-body {
+      padding: 40px 30px;
+      text-align: center;
+    }
+
+    .email-body h2 {
+      font-size: 22px;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+    }
+
+    .email-body p {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 30px;
+      line-height: 1.8;
+    }
+
+    .button-container {
+      text-align: center;
+      margin: 30px 0;
+    }
+
+    .verify-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #1da1f2 0%, #0d8ed9 100%);
+      color: #ffffff !important;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 16px 40px;
+      border-radius: 30px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(29, 161, 242, 0.4);
+    }
+
+    .verify-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(29, 161, 242, 0.5);
+    }
+
+    .warning-box {
+      background-color: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 30px 0;
+      text-align: left;
+    }
+
+    .warning-box p {
+      font-size: 14px;
+      color: #856404;
+      margin: 0;
+    }
+
+    .email-footer {
+      background-color: #f8f9fa;
+      padding: 30px;
+      text-align: center;
+      border-top: 1px solid #eee;
+    }
+
+    .email-footer p {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 8px;
+    }
+
+    .email-footer a {
+      color: #1da1f2;
+      text-decoration: none;
+    }
+
+    @media only screen and (max-width: 480px) {
+      .email-container {
+        margin: 20px;
+        border-radius: 8px;
+      }
+
+      .email-header {
+        padding: 30px 20px;
+      }
+
+      .email-header h1 {
+        font-size: 24px;
+      }
+
+      .email-body {
+        padding: 30px 20px;
+      }
+
+      .email-body h2 {
+        font-size: 20px;
+      }
+
+      .verify-button {
+        display: block;
+        padding: 14px 30px;
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="email-container">
+    <div class="email-header">
+      <h1>{{title}}</h1>
+    </div>
+
+    <div class="email-body">
+      <h2>Xác thực email của bạn</h2>
+      <p>{{content}}</p>
+
+      <div class="button-container">
+        <a href="{{buttonLink}}" class="verify-button">{{buttonText}}</a>
+      </div>
+
+      <div class="warning-box">
+        <p><strong>Lưu ý:</strong> Link xác thực này sẽ hết hạn sau 24 giờ. Nếu bạn không thực hiện yêu cầu này, vui
+          lòng bỏ qua email này.</p>
+      </div>
+
+      <p style="font-size: 14px; color: #777; margin-top: 20px;">
+        Nếu nút bấm không hoạt động, bạn có thể sao chép và dán link bên dưới vào trình duyệt:
+      </p>
+      <p style="font-size: 13px; color: #1da1f2; word-break: break-all; margin-top: 8px;">
+        {{buttonLink}}
+      </p>
+    </div>
+
+    <div class="email-footer">
+      <p>Email này được gửi tự động từ hệ thống.</p>
+      <p>Vui lòng không trả lời email này.</p>
+      <p>&copy; 2026 Twitter Clone. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+
+</html>
