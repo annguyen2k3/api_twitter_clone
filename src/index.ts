@@ -6,8 +6,6 @@ import indexRoutes from './routes/index.routes'
 import { defaultErrorHandler } from './middlewares/errors.middlewares'
 import { initFolder } from './utils/file'
 
-import './utils/s3'
-
 dotenv.config()
 
 initFolder()

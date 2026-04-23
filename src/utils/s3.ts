@@ -1,5 +1,8 @@
 import { S3 } from '@aws-sdk/client-s3'
+import { Upload } from '@aws-sdk/lib-storage'
 import { config } from 'dotenv'
+import fs from 'fs'
+import path from 'path'
 
 config()
 
@@ -11,10 +14,28 @@ const s3 = new S3({
   }
 })
 
-s3.listBuckets({})
-  .then((data) => {
-    console.log(data)
+export const uploadFileToS3 = ({
+  filename,
+  filepath,
+  contentType
+}: {
+  filename: string
+  filepath: string
+  contentType: string
+}) => {
+  const parallelUploadS3 = new Upload({
+    client: s3,
+    params: {
+      Bucket: process.env.AWS_BUCKET_NAME as string,
+      Key: filename,
+      Body: fs.readFileSync(filepath),
+      ContentType: contentType
+    },
+    tags: [],
+    queueSize: 4,
+    partSize: 1024 * 1024 * 5, // 5MB
+    leavePartsOnError: false
   })
-  .catch((err) => {
-    console.error(err)
-  })
+
+  return parallelUploadS3.done()
+}
