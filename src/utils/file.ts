@@ -145,3 +145,21 @@ export const handleUploadVideoHLS = async (req: Request) => {
     })
   })
 }
+
+export const getFiles = (dir: string, files: string[] = []) => {
+  // Get an array of all file and  directories in the passed directory using fs.readdirSync
+  const fileList = fs.readdirSync(dir)
+  // Create the full path of the file/directory by concatenating the passed directory and the file/directory name
+  for (const file of fileList) {
+    const name = `${dir}/${file}`
+    // Check if the current item is a directory using fs.statSync
+    if (fs.statSync(name).isDirectory()) {
+      // If it is a directory, recursively call the function with the new directory path
+      getFiles(name, files)
+    } else {
+      // If it is a file, add the full path to the files array
+      files.push(name)
+    }
+  }
+  return files
+}

@@ -3,8 +3,9 @@ import path from 'path'
 import sharp from 'sharp'
 import fs from 'fs'
 import mime from 'mime'
-import { UPLOAD_IMAGE_DIR } from '~/constants/dir'
+import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
 import {
+  getFiles,
   getNameFromFullname,
   handleUploadImage,
   handleUploadVideo,
@@ -60,7 +61,20 @@ class Queue {
         console.log('Start encoding video: ', videoPath)
         await encodeHLSWithMultipleVideoStreams(videoPath)
         this.items.shift()
-        fs.unlinkSync(videoPath)
+        const files = getFiles(path.resolve(UPLOAD_VIDEO_DIR, idName))
+        const basePath = path.resolve(UPLOAD_VIDEO_DIR, idName).replace(/\\/g, '/')
+        await Promise.all(
+          files.map((filepath) => {
+            const normalizedFilepath = filepath.replace(/\\/g, '/')
+            const filename = normalizedFilepath.replace(basePath, 'videos-hls/' + idName)
+            return uploadFileToS3({
+              filename,
+              filepath,
+              contentType: mime.getType(filepath) as string
+            })
+          })
+        )
+        fs.rmSync(path.resolve(UPLOAD_VIDEO_DIR, idName), { recursive: true })
         await databaseService.videoStatus.updateOne(
           { name: idName },
           {
