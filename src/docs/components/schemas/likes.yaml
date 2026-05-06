@@ -1,0 +1,24 @@
+components:
+  schemas:
+    # ==================== LIKE SCHEMAS ====================
+    Like:
+      type: object
+      description: Like document information
+      properties:
+        _id:
+          type: string
+          description: Unique like identifier (MongoDB ObjectId)
+          example: '67f1f77bcf86cd799439022'
+        user_id:
+          type: string
+          description: The user who liked the tweet
+          example: '69e24855889b96b20a0621f4'
+        tweet_id:
+          type: string
+          description: The liked tweet ID
+          example: '69e24855889b96b20a0621f5'
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the like was created
+          example: '2024-01-15T10:30:00.000Z'

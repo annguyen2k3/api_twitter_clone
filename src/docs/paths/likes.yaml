@@ -1,0 +1,84 @@
+/likes:
+  post:
+    tags:
+      - Likes
+    summary: Like a tweet
+    description: |
+      Like a tweet by providing the tweet ID.
+      The authenticated user will like the specified tweet.
+      If the user has already liked the tweet, this endpoint still returns success (idempotent).
+    operationId: likeTweet
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - tweet_id
+            properties:
+              tweet_id:
+                type: string
+                description: The unique identifier of the tweet to like
+                example: '69e24855889b96b20a0621f4'
+    responses:
+      '200':
+        description: Tweet liked successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: 'Like tweet successfully'
+                result:
+                  $ref: '#/components/schemas/Like'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '403':
+        $ref: '#/components/responses/Forbidden'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+
+/likes/{tweet_id}:
+  delete:
+    tags:
+      - Likes
+    summary: Unlike a tweet
+    description: |
+      Unlike a tweet by providing the tweet ID.
+      The authenticated user will unlike the specified tweet.
+      If the user has not liked the tweet, this endpoint still returns success (idempotent).
+    operationId: unlikeTweet
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: tweet_id
+        in: path
+        required: true
+        description: The unique identifier of the tweet to unlike
+        schema:
+          type: string
+          example: '69e24855889b96b20a0621f4'
+    responses:
+      '200':
+        description: Tweet unliked successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: 'Unlike tweet successfully'
+                result:
+                  $ref: '#/components/schemas/Like'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '403':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'

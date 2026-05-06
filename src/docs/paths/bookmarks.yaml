@@ -1,0 +1,84 @@
+/bookmarks:
+  post:
+    tags:
+      - Bookmarks
+    summary: Bookmark a tweet
+    description: |
+      Bookmark a tweet by providing the tweet ID.
+      The authenticated user will bookmark the specified tweet.
+      If the user has already bookmarked the tweet, this endpoint still returns success (idempotent).
+    operationId: bookmarkTweet
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - tweet_id
+            properties:
+              tweet_id:
+                type: string
+                description: The unique identifier of the tweet to bookmark
+                example: '69e24855889b96b20a0621f4'
+    responses:
+      '200':
+        description: Tweet bookmarked successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: 'Bookmark tweet successfully'
+                result:
+                  $ref: '#/components/schemas/Bookmark'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '403':
+        $ref: '#/components/responses/Forbidden'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+
+/bookmarks/{tweet_id}:
+  delete:
+    tags:
+      - Bookmarks
+    summary: Unbookmark a tweet
+    description: |
+      Unbookmark a tweet by providing the tweet ID.
+      The authenticated user will remove the bookmark from the specified tweet.
+      If the user has not bookmarked the tweet, this endpoint still returns success (idempotent).
+    operationId: unbookmarkTweet
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: tweet_id
+        in: path
+        required: true
+        description: The unique identifier of the tweet to unbookmark
+        schema:
+          type: string
+          example: '69e24855889b96b20a0621f4'
+    responses:
+      '200':
+        description: Tweet unbookmarked successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: 'Unbookmark tweet successfully'
+                result:
+                  $ref: '#/components/schemas/Bookmark'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '403':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'

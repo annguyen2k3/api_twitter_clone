@@ -1,0 +1,170 @@
+/medias/upload-images:
+  post:
+    tags:
+      - Medias
+    summary: Upload images
+    description: |
+      Upload one or more image files. Supported formats include JPEG, PNG, GIF, and WebP.
+      Images are automatically converted to JPEG format and uploaded to S3 storage.
+      Returns an array of media objects with URLs and types.
+    operationId: uploadImages
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              images:
+                type: array
+                items:
+                  type: string
+                  format: binary
+                description: Image files to upload (max files depends on server configuration)
+    responses:
+      '200':
+        description: Images uploaded successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: 'Upload successfully'
+                result:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Media'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '403':
+        $ref: '#/components/responses/Forbidden'
+
+/medias/upload-video:
+  post:
+    tags:
+      - Medias
+    summary: Upload video
+    description: |
+      Upload a video file. The video is uploaded directly to S3 storage without transcoding.
+      Supported formats depend on S3 and server configuration.
+      Returns a media object with the video URL.
+    operationId: uploadVideo
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              video:
+                type: string
+                format: binary
+                description: Video file to upload
+    responses:
+      '200':
+        description: Video uploaded successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: 'Upload successfully'
+                result:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Media'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '403':
+        $ref: '#/components/responses/Forbidden'
+
+/medias/upload-video-hls:
+  post:
+    tags:
+      - Medias
+    summary: Upload video with HLS encoding
+    description: |
+      Upload a video file for HLS (HTTP Live Streaming) encoding.
+      The video is queued for transcoding into multiple quality streams.
+      Use the video-status endpoint to check encoding progress.
+      Returns a media object with the HLS master playlist URL.
+    operationId: uploadVideoHLS
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              video:
+                type: string
+                format: binary
+                description: Video file to upload for HLS encoding
+    responses:
+      '200':
+        description: Video uploaded and queued for encoding
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: 'Upload successfully'
+                result:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Media'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '403':
+        $ref: '#/components/responses/Forbidden'
+
+/medias/video-status/{id}:
+  get:
+    tags:
+      - Medias
+    summary: Get video encoding status
+    description: |
+      Get the current encoding status of a video uploaded via the HLS endpoint.
+      Returns the video status including encoding progress (Pending, Processing, Success, Failed).
+    operationId: getVideoStatus
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: The unique identifier of the video (returned from upload-video-hls)
+        schema:
+          type: string
+          example: '69e24855889b96b20a0621f4'
+    responses:
+      '200':
+        description: Video status retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: 'Get video status successfully'
+                result:
+                  $ref: '#/components/schemas/VideoStatus'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '403':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
