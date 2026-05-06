@@ -1,0 +1,137 @@
+components:
+  schemas:
+    # ==================== USER SCHEMAS ====================
+    User:
+      type: object
+      description: User profile information
+      properties:
+        _id:
+          type: string
+          description: Unique user identifier (MongoDB ObjectId)
+          example: '507f1f77bcf86cd799439011'
+        name:
+          type: string
+          description: User display name
+          example: 'John Doe'
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: 'john@example.com'
+        username:
+          type: string
+          description: Unique username
+          example: 'johndoe'
+        avatar:
+          type: string
+          nullable: true
+          description: Profile avatar URL
+          example: 'https://res.cloudinary.com/xxx/image/upload/v1/avatar/123.jpg'
+        cover_photo:
+          type: string
+          nullable: true
+          description: Profile cover photo URL
+          example: 'https://res.cloudinary.com/xxx/image/upload/v1/cover/456.jpg'
+        bio:
+          type: string
+          nullable: true
+          description: User biography
+          example: 'Software Developer | Coffee Enthusiast'
+        location:
+          type: string
+          nullable: true
+          description: User location
+          example: 'San Francisco, CA'
+        website:
+          type: string
+          nullable: true
+          description: User website URL
+          example: 'https://johndoe.dev'
+        date_of_birth:
+          type: string
+          format: date
+          description: User date of birth
+          example: '1990-01-15'
+        verify:
+          type: integer
+          enum: [0, 1, 2]
+          description: 'Verification status: 0=Unverified, 1=Verified, 2=Banned'
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+          description: Account creation timestamp
+          example: '2024-01-15T10:30:00.000Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: '2024-01-20T15:45:00.000Z'
+
+    UpdateMeReqBody:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 50
+          description: User display name
+          example: 'John Doe'
+        date_of_birth:
+          type: string
+          format: date
+          description: Date of birth in ISO 8601 format (YYYY-MM-DD)
+          example: '1990-01-15'
+        bio:
+          type: string
+          maxLength: 200
+          description: User biography
+          example: 'Software Developer | Coffee Enthusiast'
+        location:
+          type: string
+          maxLength: 100
+          description: User location
+          example: 'San Francisco, CA'
+        website:
+          type: string
+          format: uri
+          description: User website URL
+          example: 'https://johndoe.dev'
+        username:
+          type: string
+          minLength: 3
+          maxLength: 30
+          pattern: '^[a-zA-Z0-9_]+$'
+          description: Unique username (alphanumeric and underscores only)
+          example: 'johndoe'
+        avatar:
+          type: string
+          format: uri
+          description: Profile avatar URL
+          example: 'https://res.cloudinary.com/xxx/image/upload/v1/avatar/123.jpg'
+        cover_photo:
+          type: string
+          format: uri
+          description: Profile cover photo URL
+          example: 'https://res.cloudinary.com/xxx/image/upload/v1/cover/456.jpg'
+
+    UserResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Get user profile successfully'
+        result:
+          $ref: '#/components/schemas/User'
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Operation completed successfully'
+        result:
+          type: object
+          nullable: true
+          description: Optional result data
+          example: null

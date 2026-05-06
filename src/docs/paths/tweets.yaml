@@ -1,0 +1,220 @@
+/tweets:
+  post:
+    tags:
+      - Tweets
+    summary: Create a new tweet
+    description: |
+      Create a new tweet with various types (Tweet, Retweet, Comment, QuoteTweet).
+      - Tweet: Regular tweet with optional media
+      - Retweet: Share another tweet (content must be empty)
+      - Comment: Reply to a tweet (requires parent_id)
+      - QuoteTweet: Quote another tweet with comment (requires parent_id)
+    operationId: createTweet
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateTweetRequest'
+          example:
+            type: 0
+            audience: 0
+            content: 'Hello Twitter! This is my first tweet.'
+            parent_id: null
+            hashtags: ['hello', 'twitter']
+            mentions: []
+            medias: []
+    responses:
+      '201':
+        description: Tweet created successfully
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TweetResponse'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '403':
+        $ref: '#/components/responses/Forbidden'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+
+/tweets/new-feeds:
+  get:
+    tags:
+      - Tweets
+    summary: Get new feeds
+    description: |
+      Get tweets from followed users for the home timeline.
+      Returns paginated tweets from users the authenticated user follows, including their own tweets.
+      Public tweets and Twitter Circle tweets (for circle members) are included.
+    operationId: getNewFeeds
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: page
+        in: query
+        required: false
+        description: Page number for pagination
+        schema:
+          type: integer
+          default: 1
+          minimum: 1
+          example: 1
+      - name: limit
+        in: query
+        required: false
+        description: Number of tweets per page (1-100)
+        schema:
+          type: integer
+          default: 10
+          minimum: 1
+          maximum: 100
+          example: 10
+    responses:
+      '200':
+        description: New feeds retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: 'Get new feeds successfully'
+                result:
+                  type: object
+                  properties:
+                    tweets:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Tweet'
+                    limit:
+                      type: integer
+                      example: 10
+                    page:
+                      type: integer
+                      example: 1
+                    total_page:
+                      type: integer
+                      example: 5
+
+/tweets/{tweet_id}:
+  get:
+    tags:
+      - Tweets
+    summary: Get tweet detail
+    description: |
+      Get detailed information about a specific tweet by its ID.
+      This endpoint also increments the view count for the tweet.
+      - Public tweets (audience: 0) can be viewed by anyone
+      - Twitter Circle tweets (audience: 1) can only be viewed by the author or circle members
+    operationId: getTweetDetail
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: tweet_id
+        in: path
+        required: true
+        description: The unique identifier of the tweet
+        schema:
+          type: string
+          example: '69e24855889b96b20a0621f4'
+    responses:
+      '200':
+        description: Tweet detail retrieved successfully
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TweetDetailResponse'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '403':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+
+/tweets/{tweet_id}/children:
+  get:
+    tags:
+      - Tweets
+    summary: Get tweet children
+    description: |
+      Get child tweets (retweets, comments, or quote tweets) of a parent tweet.
+      Filter by tweet type: Retweet (1), Comment (2), or QuoteTweet (3).
+      Returns paginated results with engagement metrics.
+    operationId: getTweetChildren
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: tweet_id
+        in: path
+        required: true
+        description: The unique identifier of the parent tweet
+        schema:
+          type: string
+          example: '69e24855889b96b20a0621f4'
+      - name: page
+        in: query
+        required: false
+        description: Page number for pagination
+        schema:
+          type: integer
+          default: 1
+          minimum: 1
+          example: 1
+      - name: limit
+        in: query
+        required: false
+        description: Number of tweets per page (1-100)
+        schema:
+          type: integer
+          default: 10
+          minimum: 1
+          maximum: 100
+          example: 10
+      - name: tweet_type
+        in: query
+        required: true
+        description: Type of child tweets to retrieve (0=Tweet, 1=Retweet, 2=Comment, 3=QuoteTweet)
+        schema:
+          type: integer
+          enum: [0, 1, 2, 3]
+          example: 2
+    responses:
+      '200':
+        description: Tweet children retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: 'Get tweet children successfully'
+                result:
+                  type: object
+                  properties:
+                    tweets:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Tweet'
+                    tweet_type:
+                      type: integer
+                      example: 2
+                    limit:
+                      type: integer
+                      example: 10
+                    page:
+                      type: integer
+                      example: 1
+                    total_page:
+                      type: integer
+                      example: 3
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '403':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'

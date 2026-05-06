@@ -1,0 +1,206 @@
+components:
+  schemas:
+    # ==================== TWEET SCHEMAS ====================
+    Media:
+      type: object
+      description: Media attachment (image, video, or HLS stream)
+      properties:
+        url:
+          type: string
+          format: uri
+          description: URL of the media file
+          example: 'https://res.cloudinary.com/xxx/image/upload/v1/media/123.jpg'
+        type:
+          type: integer
+          enum: [0, 1, 2]
+          description: 'Media type: 0=Image, 1=Video, 2=HLS'
+          example: 0
+
+    UserInTweet:
+      type: object
+      description: Simplified user object embedded in tweets
+      properties:
+        _id:
+          type: string
+          description: Unique user identifier
+          example: '507f1f77bcf86cd799439011'
+        name:
+          type: string
+          description: User display name
+          example: 'John Doe'
+        username:
+          type: string
+          description: User username
+          example: 'johndoe'
+        email:
+          type: string
+          format: email
+          description: User email
+          example: 'john@example.com'
+        avatar:
+          type: string
+          nullable: true
+          description: Profile avatar URL
+          example: 'https://res.cloudinary.com/xxx/image/upload/v1/avatar/123.jpg'
+
+    Tweet:
+      type: object
+      description: Tweet object with all metadata and engagement metrics
+      properties:
+        _id:
+          type: string
+          description: Unique tweet identifier (MongoDB ObjectId)
+          example: '69e24855889b96b20a0621f4'
+        user:
+          $ref: '#/components/schemas/UserInTweet'
+        type:
+          type: integer
+          enum: [0, 1, 2, 3]
+          description: 'Tweet type: 0=Tweet, 1=Retweet, 2=Comment, 3=QuoteTweet'
+          example: 0
+        audience:
+          type: integer
+          enum: [0, 1]
+          description: 'Tweet audience: 0=Everyone, 1=TwitterCircle'
+          example: 0
+        content:
+          type: string
+          description: Tweet text content
+          example: 'Hello Twitter! This is my first tweet.'
+        parent_id:
+          type: string
+          nullable: true
+          description: Parent tweet ID (for retweets, comments, quote tweets)
+          example: null
+        hashtags:
+          type: array
+          description: List of hashtags used in the tweet
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+                description: Hashtag identifier
+                example: '69e24855889b96b20a0621f4'
+              name:
+                type: string
+                description: Hashtag name without # symbol
+                example: 'hello'
+        mentions:
+          type: array
+          description: List of mentioned users
+          items:
+            $ref: '#/components/schemas/UserInTweet'
+        medias:
+          type: array
+          description: List of media attachments
+          items:
+            $ref: '#/components/schemas/Media'
+        guest_views:
+          type: integer
+          description: Number of views from guest users
+          example: 150
+        user_views:
+          type: integer
+          description: Number of views from logged-in users
+          example: 320
+        views:
+          type: integer
+          description: Total views (guest_views + user_views)
+          example: 470
+        likes:
+          type: integer
+          description: Number of likes
+          example: 42
+        bookmarks:
+          type: integer
+          description: Number of bookmarks
+          example: 12
+        retweet_count:
+          type: integer
+          description: Number of retweets
+          example: 8
+        comment_count:
+          type: integer
+          description: Number of comments
+          example: 15
+        quote_count:
+          type: integer
+          description: Number of quote tweets
+          example: 3
+        created_at:
+          type: string
+          format: date-time
+          description: Tweet creation timestamp
+          example: '2024-01-15T10:30:00.000Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: '2024-01-15T10:30:00.000Z'
+
+    CreateTweetRequest:
+      type: object
+      required:
+        - type
+        - audience
+      properties:
+        type:
+          type: integer
+          enum: [0, 1, 2, 3]
+          description: 'Tweet type: 0=Tweet, 1=Retweet, 2=Comment, 3=QuoteTweet'
+          example: 0
+        audience:
+          type: integer
+          enum: [0, 1]
+          description: 'Tweet audience: 0=Everyone, 1=TwitterCircle'
+          example: 0
+        content:
+          type: string
+          description: |
+            Tweet text content.
+            - Required for Tweet, Comment, QuoteTweet (unless has hashtags or mentions)
+            - Must be empty string for Retweet
+          example: 'Hello Twitter! This is my first tweet.'
+        parent_id:
+          type: string
+          nullable: true
+          description: Parent tweet ID (required for Retweet, Comment, QuoteTweet)
+          example: null
+        hashtags:
+          type: array
+          description: List of hashtag names (without # symbol)
+          items:
+            type: string
+          example: ['hello', 'twitter']
+        mentions:
+          type: array
+          description: List of user IDs to mention
+          items:
+            type: string
+            format: ObjectId
+          example: []
+        medias:
+          type: array
+          description: List of media attachments
+          items:
+            $ref: '#/components/schemas/Media'
+          example: []
+
+    TweetResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Create tweet successfully'
+        result:
+          $ref: '#/components/schemas/Tweet'
+
+    TweetDetailResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Get tweet detail successfully'
+        result:
+          $ref: '#/components/schemas/Tweet'

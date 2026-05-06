@@ -1,0 +1,65 @@
+components:
+  responses:
+    BadRequest:
+      description: Validation failed - request body or parameters are invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: 'Email already exists'
+
+    Unauthorized:
+      description: Unauthorized - access token is missing, invalid, or expired
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: 'Access token is required'
+
+    Forbidden:
+      description: Forbidden - user is banned or not verified
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: 'User is not verified'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: 'User not found'
+
+    Conflict:
+      description: Conflict - resource already exists
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: 'Email already exists'
+
+    UnprocessableEntity:
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              errors:
+                type: object
+          example:
+            message: 'Entity error'
+            errors:
+              password:
+                type: 'field'
+                value: '@Nguyen'
+                msg: 'Password is invalid'

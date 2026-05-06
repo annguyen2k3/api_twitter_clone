@@ -1,0 +1,173 @@
+components:
+  schemas:
+    # ==================== AUTH SCHEMAS ====================
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: 'john@example.com'
+        password:
+          type: string
+          format: password
+          description: User password
+          example: 'SecurePass123!'
+
+    RegisterRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+        - confirm_password
+        - date_of_birth
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 50
+          description: User display name
+          example: 'John Doe'
+        email:
+          type: string
+          format: email
+          description: User email address (must be unique)
+          example: 'john@example.com'
+        password:
+          type: string
+          format: password
+          minLength: 6
+          pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$'
+          description: Password must contain at least 1 uppercase, 1 lowercase, and 1 number
+          example: 'SecurePass123!'
+        confirm_password:
+          type: string
+          format: password
+          description: Must match the password field
+          example: 'SecurePass123!'
+        date_of_birth:
+          type: string
+          format: date
+          description: Date of birth in ISO 8601 format (YYYY-MM-DD)
+          example: '1990-01-15'
+
+    AuthTokensResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Login successfully'
+        result:
+          type: object
+          properties:
+            access_token:
+              type: string
+              example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+            refresh_token:
+              type: string
+              example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          description: Refresh token to get new access token
+          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+
+    LogoutRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          description: Refresh token to invalidate
+          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+
+    VerifyEmailRequest:
+      type: object
+      required:
+        - email_verify_token
+      properties:
+        email_verify_token:
+          type: string
+          description: Email verification token from the verification link
+          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+
+    ForgotPasswordRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address to receive reset link
+          example: 'john@example.com'
+
+    VerifyForgotPasswordRequest:
+      type: object
+      required:
+        - forgot_password_token
+      properties:
+        forgot_password_token:
+          type: string
+          description: Forgot password token from the reset link
+          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+
+    ResetPasswordRequest:
+      type: object
+      required:
+        - password
+        - confirm_password
+        - forgot_password_token
+      properties:
+        password:
+          type: string
+          format: password
+          minLength: 6
+          pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$'
+          description: New password (must contain at least 1 uppercase, 1 lowercase, and 1 number)
+          example: 'NewSecurePass123!'
+        confirm_password:
+          type: string
+          format: password
+          description: Must match the password field
+          example: 'NewSecurePass123!'
+        forgot_password_token:
+          type: string
+          description: Token received from forgot password email
+          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+
+    ChangePasswordRequest:
+      type: object
+      required:
+        - old_password
+        - password
+        - confirm_password
+      properties:
+        old_password:
+          type: string
+          format: password
+          description: Current password
+          example: 'OldPassword123!'
+        password:
+          type: string
+          format: password
+          minLength: 6
+          pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$'
+          description: New password (must contain at least 1 uppercase, 1 lowercase, and 1 number)
+          example: 'NewSecurePass123!'
+        confirm_password:
+          type: string
+          format: password
+          description: Must match the password field
+          example: 'NewSecurePass123!'

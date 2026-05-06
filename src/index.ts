@@ -5,6 +5,7 @@ import databaseService from './services/database.services'
 import indexRoutes from './routes/index.routes'
 import { defaultErrorHandler } from './middlewares/errors.middlewares'
 import { initFolder } from './utils/file'
+import { setupSwagger } from './docs/setup'
 
 dotenv.config()
 
@@ -26,6 +27,8 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 indexRoutes(app)
+
+setupSwagger(app)
 
 app.get('/', (req, res) => {
   res.send('Hello World')
