@@ -646,7 +646,7 @@ class TweetsService {
         .toArray()
     ])
 
-    console.log(total[0].total)
+    console.log(total[0]?.total)
 
     tweets.forEach((tweet) => {
       tweet.updated_at = date
@@ -654,7 +654,7 @@ class TweetsService {
     })
     return {
       tweets,
-      total: total[0].total
+      total: total[0]?.total ?? 0
     }
   }
 }
