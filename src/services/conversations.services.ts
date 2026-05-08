@@ -13,8 +13,6 @@ class ConversationsService {
     limit: number
     page: number
   }) {
-    console.log(sender_id, receiver_id)
-
     const findCondition = {
       $or: [
         { sender_id: new ObjectId(sender_id), receiver_id: new ObjectId(receiver_id) },

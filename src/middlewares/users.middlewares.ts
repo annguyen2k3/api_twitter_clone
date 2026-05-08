@@ -550,3 +550,12 @@ export const isUserLoggedInValidator = (
     next()
   }
 }
+
+export const getConversationValidator = validate(
+  checkSchema(
+    {
+      receiver_id: userIdSchema
+    },
+    ['params']
+  )
+)
