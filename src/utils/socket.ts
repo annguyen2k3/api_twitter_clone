@@ -11,18 +11,20 @@ import { HTTP_STATUS } from '~/constants/httpStatus'
 import Conversation from '~/models/schemas/Conversations.schemas'
 import databaseService from '~/services/database.services'
 
+let io: Server
+const users: {
+  [key: string]: {
+    socket_id: string
+  }
+} = {}
+
 const initSocket = (httpServer: ServerHttp) => {
-  const io = new Server(httpServer, {
+  io = new Server(httpServer, {
     cors: {
       origin: 'http://localhost:5500'
     }
   })
 
-  const users: {
-    [key: string]: {
-      socket_id: string
-    }
-  } = {}
   io.use(async (socket, next) => {
     const { Authorization } = socket.handshake.auth
     if (!Authorization || !Authorization.startsWith('Bearer ')) {
@@ -106,6 +108,10 @@ const initSocket = (httpServer: ServerHttp) => {
       console.log(`user ${socket.id} disconnected`)
     })
   })
+}
+
+export const emitToUser = (userId: string, event: string, data: unknown) => {
+  io.to(userId).emit(event, data)
 }
 
 export default initSocket

@@ -12,6 +12,7 @@ import Follower from '~/models/schemas/Follower.schemas'
 import { ErrorWithStatus } from '~/models/Errors'
 import { HTTP_STATUS } from '~/constants/httpStatus'
 import emailService from './email.services'
+import { emitToUser } from '~/utils/socket'
 
 config()
 
@@ -334,6 +335,16 @@ class UsersService {
         followed_user_id: new ObjectId(followedUserId)
       })
       await databaseService.followers.insertOne(follower)
+
+      const followerInfo = await databaseService.users.findOne(
+        { _id: new ObjectId(userId) },
+        { projection: { _id: 1, name: 1, avatar: 1 } }
+      )
+
+      if (followerInfo) {
+        emitToUser(followedUserId, 'new_follower', followerInfo)
+      }
+
       return {
         message: USER_MESSAGES.FOLLOW_USER_SUCCESS
       }
