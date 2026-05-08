@@ -101,3 +101,7 @@ export const LIKE_MESSAGES = {
 export const SEARCH_MESSAGES = {
   SEARCH_SUCCESS: 'Search successfully'
 } as const
+
+export const CONVERSATION_MESSAGES = {
+  GET_CONVERSATION_SUCCESS: 'Get conversation successfully'
+} as const

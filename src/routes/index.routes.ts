@@ -6,6 +6,7 @@ import bookmarksRouter from './bookmarks.routes'
 import likesRouter from './likes.routes'
 import tweetsRouter from './tweets.routes'
 import searchRouter from './search.routes'
+import conversationsRouter from './conversations.routes'
 
 export default function (app: Express) {
   app.use('/users', userRouter)
@@ -15,4 +16,5 @@ export default function (app: Express) {
   app.use('/bookmarks', bookmarksRouter)
   app.use('/likes', likesRouter)
   app.use('/search', searchRouter)
+  app.use('/conversations', conversationsRouter)
 }
