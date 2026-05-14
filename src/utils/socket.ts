@@ -10,6 +10,7 @@ import { USER_MESSAGES } from '~/constants/messages'
 import { HTTP_STATUS } from '~/constants/httpStatus'
 import Conversation from '~/models/schemas/Conversations.schemas'
 import databaseService from '~/services/database.services'
+import conversationCacheService from '~/services/conversationCache.services'
 
 let io: Server
 const users: {
@@ -94,6 +95,8 @@ const initSocket = (httpServer: ServerHttp) => {
 
       const result = await databaseService.conversations.insertOne(conversation)
       conversation._id = result.insertedId
+
+      await conversationCacheService.invalidateConversation(sender_id, receiver_id)
 
       io.to(receiver_id).emit('receive_message', {
         payload: conversation

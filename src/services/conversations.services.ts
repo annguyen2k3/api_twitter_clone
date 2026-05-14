@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb'
 import databaseService from './database.services'
+import conversationCacheService from './conversationCache.services'
 
 class ConversationsService {
   async getConversation({
@@ -13,6 +14,11 @@ class ConversationsService {
     limit: number
     page: number
   }) {
+    const cached = await conversationCacheService.getConversation(sender_id, receiver_id, page, limit)
+    if (cached) {
+      return cached
+    }
+
     const findCondition = {
       $or: [
         { sender_id: new ObjectId(sender_id), receiver_id: new ObjectId(receiver_id) },
@@ -27,12 +33,17 @@ class ConversationsService {
       .limit(limit)
       .toArray()
     const total = await databaseService.conversations.countDocuments(findCondition)
-    return {
+
+    const result = {
       conversations: conversation,
       limit,
       page,
       total_pages: Math.ceil(total / limit)
     }
+
+    await conversationCacheService.setConversation(sender_id, receiver_id, page, limit, result)
+
+    return result
   }
 }
 
