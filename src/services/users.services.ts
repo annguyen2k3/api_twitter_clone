@@ -10,6 +10,7 @@ import { config } from 'dotenv'
 import { USER_MESSAGES } from '~/constants/messages'
 import Follower from '~/models/schemas/Follower.schemas'
 import feedCacheService from './feedCache.services'
+import userCacheService, { UserCacheData } from './userCache.services'
 import { ErrorWithStatus } from '~/models/Errors'
 import { HTTP_STATUS } from '~/constants/httpStatus'
 import emailService from './email.services'
@@ -290,6 +291,11 @@ class UsersService {
   }
 
   async getMe(userId: string) {
+    const cached = await userCacheService.getUser(userId)
+    if (cached) {
+      return cached
+    }
+
     const user = await databaseService.users.findOne(
       { _id: new ObjectId(userId) },
       { projection: { password: 0, email_verify_token: 0, forgot_password_token: 0 } }
@@ -300,11 +306,18 @@ class UsersService {
     const followed = await databaseService.followers.countDocuments({
       user_id: new ObjectId(userId)
     })
-    return {
+    const result: UserCacheData = {
       ...user,
+      _id: user!._id.toString(),
+      date_of_birth: user!.date_of_birth ? user!.date_of_birth.toISOString() : '',
+      created_at: user!.created_at ? user!.created_at.toISOString() : '',
       follower,
       followed
-    }
+    } as UserCacheData
+
+    await userCacheService.setUser(userId, result)
+
+    return result
   }
 
   async updateMe(userId: string, payload: UpdateMeReqBody) {
@@ -322,6 +335,11 @@ class UsersService {
         projection: { password: 0, email_verify_token: 0, forgot_password_token: 0 }
       }
     )
+
+    if (user) {
+      await userCacheService.invalidateUser(userId)
+    }
+
     return user ?? null
   }
 
@@ -346,7 +364,11 @@ class UsersService {
         emitToUser(followedUserId, 'new_follower', followerInfo)
       }
 
-      await feedCacheService.invalidateFeed(userId)
+      await Promise.all([
+        feedCacheService.invalidateFeed(userId),
+        userCacheService.invalidateUser(userId),
+        userCacheService.invalidateUser(followedUserId)
+      ])
 
       return {
         message: USER_MESSAGES.FOLLOW_USER_SUCCESS
@@ -370,7 +392,13 @@ class UsersService {
     await databaseService.followers.deleteOne({
       _id: follower._id
     })
-    await feedCacheService.invalidateFeed(userId)
+
+    await Promise.all([
+      feedCacheService.invalidateFeed(userId),
+      userCacheService.invalidateUser(userId),
+      userCacheService.invalidateUser(followedUserId)
+    ])
+
     return {
       message: USER_MESSAGES.UNFOLLOW_USER_SUCCESS
     }
