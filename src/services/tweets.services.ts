@@ -2,9 +2,9 @@ import { TweetReqBody } from '~/models/requests/Tweet.requests'
 import databaseService from './database.services'
 import Tweet from '~/models/schemas/Tweet.schemas'
 import { ObjectId, WithId } from 'mongodb'
-import { result } from 'lodash'
 import Hashtag from '~/models/schemas/Hashtag.schemas'
 import { TweetType } from '~/constants/enums'
+import feedCacheService from './feedCache.services'
 
 class TweetsService {
   async checkAndCreateHashtags(hashtags: string[]) {
@@ -35,6 +35,9 @@ class TweetsService {
       })
     )
     const tweet = await databaseService.tweets.findOne({ _id: result.insertedId })
+
+    await feedCacheService.invalidateFollowersFeeds(userId)
+
     return tweet
   }
 
@@ -264,6 +267,11 @@ class TweetsService {
   }
 
   async getNewFeeds({ user_id, limit, page }: { user_id: string; limit: number; page: number }) {
+    const cached = await feedCacheService.getFeed(user_id)
+    if (cached) {
+      return cached
+    }
+
     const followed_user_ids = await databaseService.followers
       .find(
         {
@@ -652,10 +660,15 @@ class TweetsService {
       tweet.updated_at = date
       tweet.user_views++
     })
-    return {
+
+    const result = {
       tweets,
       total: total[0]?.total ?? 0
     }
+
+    await feedCacheService.setFeed(user_id, result)
+
+    return result
   }
 }
 

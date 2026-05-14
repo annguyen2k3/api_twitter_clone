@@ -2,6 +2,7 @@ import express from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import databaseService from './services/database.services'
+import redisService from './services/redis.services'
 import indexRoutes from './routes/index.routes'
 import { defaultErrorHandler } from './middlewares/errors.middlewares'
 import { initFolder } from './utils/file'
@@ -16,12 +17,13 @@ initFolder()
 const app = express()
 const httpServer = createServer(app)
 
-databaseService.connect().then(() => {
+databaseService.connect().then(async () => {
   databaseService.indexUser()
   databaseService.indexRefreshTokens()
   databaseService.indexVideoStatus()
   databaseService.indexFollowers()
   databaseService.indexTweets()
+  await redisService.connect()
 })
 
 app.use(cors())

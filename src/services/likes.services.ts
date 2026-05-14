@@ -1,6 +1,7 @@
 import { ObjectId, WithId } from 'mongodb'
 import databaseService from './database.services'
 import Like from '~/models/schemas/Like.schemas'
+import feedCacheService from './feedCache.services'
 
 class LikesService {
   async likeTweet(userId: string, tweetId: string) {
@@ -20,6 +21,15 @@ class LikesService {
         returnDocument: 'after'
       }
     )
+
+    const tweet = await databaseService.tweets.findOne(
+      { _id: new ObjectId(tweetId) },
+      { projection: { user_id: 1 } }
+    )
+    if (tweet) {
+      await feedCacheService.invalidateFeed((tweet.user_id as ObjectId).toString())
+    }
+
     return result as WithId<Like>
   }
 
@@ -28,6 +38,15 @@ class LikesService {
       user_id: new ObjectId(userId),
       tweet_id: new ObjectId(tweetId)
     })
+
+    const tweet = await databaseService.tweets.findOne(
+      { _id: new ObjectId(tweetId) },
+      { projection: { user_id: 1 } }
+    )
+    if (tweet) {
+      await feedCacheService.invalidateFeed((tweet.user_id as ObjectId).toString())
+    }
+
     return result as WithId<Like>
   }
 }

@@ -9,6 +9,7 @@ import { ObjectId } from 'mongodb'
 import { config } from 'dotenv'
 import { USER_MESSAGES } from '~/constants/messages'
 import Follower from '~/models/schemas/Follower.schemas'
+import feedCacheService from './feedCache.services'
 import { ErrorWithStatus } from '~/models/Errors'
 import { HTTP_STATUS } from '~/constants/httpStatus'
 import emailService from './email.services'
@@ -345,6 +346,8 @@ class UsersService {
         emitToUser(followedUserId, 'new_follower', followerInfo)
       }
 
+      await feedCacheService.invalidateFeed(userId)
+
       return {
         message: USER_MESSAGES.FOLLOW_USER_SUCCESS
       }
@@ -367,6 +370,7 @@ class UsersService {
     await databaseService.followers.deleteOne({
       _id: follower._id
     })
+    await feedCacheService.invalidateFeed(userId)
     return {
       message: USER_MESSAGES.UNFOLLOW_USER_SUCCESS
     }
