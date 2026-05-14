@@ -5,6 +5,7 @@ import { ObjectId, WithId } from 'mongodb'
 import Hashtag from '~/models/schemas/Hashtag.schemas'
 import { TweetType } from '~/constants/enums'
 import feedCacheService from './feedCache.services'
+import searchCacheService from './searchCache.services'
 
 class TweetsService {
   async checkAndCreateHashtags(hashtags: string[]) {
@@ -37,6 +38,7 @@ class TweetsService {
     const tweet = await databaseService.tweets.findOne({ _id: result.insertedId })
 
     await feedCacheService.invalidateFollowersFeeds(userId)
+    await searchCacheService.invalidateSearch(userId)
 
     return tweet
   }

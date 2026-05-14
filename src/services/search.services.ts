@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb'
 import databaseService from './database.services'
+import searchCacheService from './searchCache.services'
 
 class SearchService {
   async search({
@@ -13,6 +14,11 @@ class SearchService {
     content: string
     user_id: string
   }) {
+    const cached = await searchCacheService.getSearch(user_id, content, page, limit)
+    if (cached) {
+      return cached
+    }
+
     const [tweets, total] = await Promise.all([
       databaseService.tweets
         .aggregate([
@@ -253,10 +259,15 @@ class SearchService {
       tweet.updated_at = date
       tweet.user_views++
     })
-    return {
+
+    const result = {
       tweets,
       total: total[0]?.total ?? 0
     }
+
+    await searchCacheService.setSearch(user_id, content, page, limit, result)
+
+    return result
   }
 }
 

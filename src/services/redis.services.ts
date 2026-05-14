@@ -109,6 +109,20 @@ class RedisService {
     }
   }
 
+  async scanAndDelete(cursor: string, pattern: string): Promise<[string, string[]]> {
+    try {
+      const [nextCursor, rawKeys] = await this.client.scan(cursor, 'MATCH', pattern, 'COUNT', 100)
+      const keys = rawKeys as string[]
+      if (keys.length > 0) {
+        await this.client.del(...keys)
+      }
+      return [nextCursor, keys]
+    } catch (error) {
+      console.error('Redis SCAN error:', error)
+      return ['0', []]
+    }
+  }
+
   getClient(): Redis {
     return this.client
   }
