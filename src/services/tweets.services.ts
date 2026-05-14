@@ -6,6 +6,7 @@ import Hashtag from '~/models/schemas/Hashtag.schemas'
 import { TweetType } from '~/constants/enums'
 import feedCacheService from './feedCache.services'
 import searchCacheService from './searchCache.services'
+import tweetCacheService from './tweetCache.services'
 
 class TweetsService {
   async checkAndCreateHashtags(hashtags: string[]) {
@@ -39,6 +40,10 @@ class TweetsService {
 
     await feedCacheService.invalidateFollowersFeeds(userId)
     await searchCacheService.invalidateSearch(userId)
+
+    if (payload.parent_id) {
+      await tweetCacheService.invalidateTweetChildren(payload.parent_id.toString())
+    }
 
     return tweet
   }
@@ -82,6 +87,11 @@ class TweetsService {
     tweetType: TweetType
     userId: string
   }) {
+    const cached = await tweetCacheService.getTweetChildren(tweetId)
+    if (cached) {
+      return cached
+    }
+
     const tweets = await databaseService.tweets
       .aggregate<Tweet>([
         {
@@ -262,10 +272,15 @@ class TweetsService {
       if (userId) tweet.user_views++
       else tweet.guest_views++
     })
-    return {
+
+    const result = {
       tweets: tweets,
       total: total
     }
+
+    await tweetCacheService.setTweetChildren(tweetId, result)
+
+    return result
   }
 
   async getNewFeeds({ user_id, limit, page }: { user_id: string; limit: number; page: number }) {
