@@ -6,6 +6,7 @@ import {
   isUserLoggedInValidator,
   verifiedUserValidator
 } from '~/middlewares/users.middlewares'
+import { searchLimiter } from '~/middlewares/rate.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 
 const searchRouter = Router()
@@ -26,6 +27,7 @@ const searchRouter = Router()
 searchRouter.get(
   '/',
   paginationValidator,
+  searchLimiter,
   accessTokenValidator,
   verifiedUserValidator,
   wrapRequestHandler(searchController)

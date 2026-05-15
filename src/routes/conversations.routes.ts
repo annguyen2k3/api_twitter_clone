@@ -6,6 +6,7 @@ import {
   getConversationValidator,
   verifiedUserValidator
 } from '~/middlewares/users.middlewares'
+import { conversationLimiter } from '~/middlewares/rate.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 
 const conversationsRouter = Router()
@@ -24,6 +25,7 @@ conversationsRouter.get(
   accessTokenValidator,
   verifiedUserValidator,
   paginationValidator,
+  conversationLimiter,
   getConversationValidator,
   wrapRequestHandler(getConversationController)
 )

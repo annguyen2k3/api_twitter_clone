@@ -31,6 +31,18 @@ import {
   updateMeValidator,
   verifiedUserValidator
 } from '~/middlewares/users.middlewares'
+import {
+  authLimiter,
+  registerLimiter,
+  forgotPasswordLimiter,
+  verifyEmailLimiter,
+  resendVerifyEmailLimiter,
+  followLimiter,
+  userMeLimiter,
+  userMePatchLimiter,
+  refreshTokenLimiter,
+  logoutLimiter
+} from '~/middlewares/rate.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 
 const userRouter = Router()
@@ -47,7 +59,12 @@ const userRouter = Router()
  *   date_of_birth: string
  * }
  */
-userRouter.post('/register', registerValidator, wrapRequestHandler(registerController))
+userRouter.post(
+  '/register',
+  registerValidator,
+  registerLimiter,
+  wrapRequestHandler(registerController)
+)
 
 /**
  * Description: Login a user
@@ -58,7 +75,7 @@ userRouter.post('/register', registerValidator, wrapRequestHandler(registerContr
  *   password: string
  * }
  */
-userRouter.post('/login', loginValidator, wrapRequestHandler(loginController))
+userRouter.post('/login', loginValidator, authLimiter, wrapRequestHandler(loginController))
 
 /**
  * Description: Logout a user
@@ -75,6 +92,7 @@ userRouter.post(
   '/logout',
   accessTokenValidator,
   refreshTokenValidator,
+  logoutLimiter,
   wrapRequestHandler(logoutController)
 )
 
@@ -86,7 +104,12 @@ userRouter.post(
  *   refresh_token: string
  * }
  */
-userRouter.post('/refresh-token', refreshTokenValidator, wrapRequestHandler(refreshTokenController))
+userRouter.post(
+  '/refresh-token',
+  refreshTokenValidator,
+  refreshTokenLimiter,
+  wrapRequestHandler(refreshTokenController)
+)
 
 /**
  * Description: Verify email
@@ -99,6 +122,7 @@ userRouter.post('/refresh-token', refreshTokenValidator, wrapRequestHandler(refr
 userRouter.post(
   '/verify-email',
   emailVerifyTokenValidator,
+  verifyEmailLimiter,
   wrapRequestHandler(verifyEmailController)
 )
 
@@ -114,6 +138,7 @@ userRouter.post(
 userRouter.post(
   '/resend-verify-email',
   accessTokenValidator,
+  resendVerifyEmailLimiter,
   wrapRequestHandler(resendVerifyEmailController)
 )
 
@@ -128,6 +153,7 @@ userRouter.post(
 userRouter.post(
   '/forgot-password',
   forgotPasswordValidator,
+  forgotPasswordLimiter,
   wrapRequestHandler(forgotPasswordController)
 )
 
@@ -173,6 +199,7 @@ userRouter.get(
   '/me',
   accessTokenValidator,
   verifiedUserValidator,
+  userMeLimiter,
   wrapRequestHandler(getMeController)
 )
 
@@ -189,6 +216,7 @@ userRouter.patch(
   '/me',
   accessTokenValidator,
   verifiedUserValidator,
+  userMePatchLimiter,
   updateMeValidator,
   filterMiddleware([
     'name',
@@ -216,6 +244,7 @@ userRouter.post(
   accessTokenValidator,
   verifiedUserValidator,
   followUserValidator,
+  followLimiter,
   wrapRequestHandler(followUserController as any)
 )
 
@@ -232,6 +261,7 @@ userRouter.delete(
   accessTokenValidator,
   verifiedUserValidator,
   unfollowUserValidator,
+  followLimiter,
   wrapRequestHandler(unfollowUserController as any)
 )
 

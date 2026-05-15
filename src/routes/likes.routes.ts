@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { likeTweetController, unlikeTweetController } from '~/controllers/likes.controllers'
 import { tweetIdValidator } from '~/middlewares/tweets.middlewares'
 import { accessTokenValidator, verifiedUserValidator } from '~/middlewares/users.middlewares'
+import { likeLimiter } from '~/middlewares/rate.middlewares'
 import { wrapRequestHandler } from '~/utils/handlers'
 
 const likesRouter = Router()
@@ -21,6 +22,7 @@ likesRouter.post(
   '/',
   accessTokenValidator,
   verifiedUserValidator,
+  likeLimiter,
   tweetIdValidator,
   wrapRequestHandler(likeTweetController)
 )
@@ -37,6 +39,7 @@ likesRouter.delete(
   '/:tweet_id',
   accessTokenValidator,
   verifiedUserValidator,
+  likeLimiter,
   tweetIdValidator,
   wrapRequestHandler(unlikeTweetController as any)
 )

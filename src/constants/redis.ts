@@ -28,3 +28,33 @@ export const CACHE_TTL = {
   search: 60,
   conversation: 120
 } as const
+
+export const RATE_LIMIT_WINDOW = 15 * 60 * 1000
+
+export const RATE_LIMIT = {
+  auth: 10,
+  forgotPassword: 5,
+  register: 5,
+  verifyEmail: 10,
+  resendVerifyEmail: 5,
+  mediaImage: 20,
+  mediaVideo: 5,
+  mediaVideoHls: 5,
+  tweet: 30,
+  like: 200,
+  bookmark: 100,
+  follow: 100,
+  userMe: 100,
+  userMePatch: 20,
+  search: 30,
+  conversation: 100,
+  refreshToken: 50,
+  logout: 50,
+  publicFeeds: 60,
+  publicTweetDetail: 60,
+  publicTweetChildren: 60
+} as const
+
+export const RATE_LIMIT_KEYS = {
+  rateLimit: (type: string, identifier: string) => `rl:${type}:${identifier}`
+} as const
