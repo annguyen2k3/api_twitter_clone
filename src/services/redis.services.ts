@@ -1,33 +1,12 @@
 import Redis from 'ioredis'
 import { REDIS_CONFIG } from '~/constants/redis'
+import redisConnection from '~/connections/redis.connection'
 
 class RedisService {
   private client: Redis
 
   constructor() {
-    this.client = new Redis(REDIS_CONFIG)
-
-    this.client.on('error', (err) => {
-      console.error('Redis Client Error:', err)
-    })
-
-    this.client.on('ready', () => {
-      console.log('Redis is ready')
-    })
-
-    this.client.on('reconnecting', () => {
-      console.log('Redis reconnecting...')
-    })
-  }
-
-  async connect() {
-    try {
-      await this.client.connect()
-      await this.client.ping()
-      console.log('Connected to Redis')
-    } catch (error) {
-      console.error('Failed to connect to Redis:', error)
-    }
+    this.client = redisConnection.getClient()
   }
 
   async get<T>(key: string): Promise<T | null> {

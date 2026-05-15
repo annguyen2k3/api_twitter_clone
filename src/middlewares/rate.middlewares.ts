@@ -1,15 +1,8 @@
-import rateLimit from 'express-rate-limit'
+import rateLimit, { ipKeyGenerator as defaultIpKeyGenerator } from 'express-rate-limit'
 import RedisStore from 'rate-limit-redis'
 import { Request, Response } from 'express'
 import redisService from '~/services/redis.services'
 import { RATE_LIMIT_WINDOW, RATE_LIMIT } from '~/constants/redis'
-
-const redisStore = new RedisStore({
-  sendCommand: (...args: string[]) =>
-    redisService.getClient().call(args[0], ...args.slice(1)) as ReturnType<
-      RedisStore['sendCommand']
-    >
-})
 
 interface RateLimiterOptions {
   max?: number
@@ -32,16 +25,26 @@ const rateLimitResponse = (req: Request, res: Response) => {
 }
 
 const createRateLimiter = (options: RateLimiterOptions) => {
+  const store = new RedisStore({
+    sendCommand: (...args: string[]) =>
+      redisService.getClient().call(args[0], ...args.slice(1)) as ReturnType<
+        RedisStore['sendCommand']
+      >,
+    prefix: `rl:${options.keyPrefix}:`
+  })
+
   return rateLimit({
-    store: redisStore,
+    store,
     windowMs: RATE_LIMIT_WINDOW,
     max: options.max ?? 100,
     standardHeaders: true,
     legacyHeaders: false,
     keyGenerator: (req: Request) => {
       const user = (req as Request & { user?: { _id?: string } }).user
-      const identifier = user?._id ? `user:${user._id}` : `ip:${req.ip || 'unknown'}`
-      return `${options.keyPrefix}:${identifier}`
+      if (user?._id) {
+        return `user:${user._id}`
+      }
+      return defaultIpKeyGenerator(req.ip || '127.0.0.1')
     },
     handler: rateLimitResponse
   })

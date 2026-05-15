@@ -3,112 +3,19 @@ import path from 'path'
 import sharp from 'sharp'
 import fs from 'fs'
 import mime from 'mime'
-import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
-import {
-  getFiles,
-  getNameFromFullname,
-  handleUploadImage,
-  handleUploadVideo,
-  handleUploadVideoHLS
-} from '~/utils/file'
+import { UPLOAD_IMAGE_DIR } from '~/constants/dir'
+import { getNameFromFullname, handleUploadImage, handleUploadVideo, handleUploadVideoHLS } from '~/utils/file'
 import { isProduction } from '~/constants/config'
 import { config } from 'dotenv'
 import { Media } from '~/constants/Other'
-import { EncodingStatus, MediaType } from '~/constants/enums'
-import { encodeHLSWithMultipleVideoStreams } from '~/utils/video'
-import console from 'console'
+import { MediaType } from '~/constants/enums'
 import databaseService from './database.services'
 import VideoStatus from '~/models/schemas/VideoStatus.schemas'
 import { uploadFileToS3 } from '~/utils/s3'
 import { CompleteMultipartUploadCommandOutput } from '@aws-sdk/client-s3'
+import { addVideoJob } from './videoQueue.service'
 
 config()
-
-class Queue {
-  items: string[]
-  encoding: boolean
-  constructor() {
-    this.items = []
-    this.encoding = false
-  }
-  async enqueue(item: string) {
-    this.items.push(item)
-    const idName = getNameFromFullname(item.split('\\').pop() as string)
-    await databaseService.videoStatus.insertOne(
-      new VideoStatus({
-        name: idName,
-        status: EncodingStatus.Pending,
-        message: 'Pending'
-      })
-    )
-    this.processEncode()
-  }
-  async processEncode() {
-    if (this.encoding) return
-    if (this.items.length > 0) {
-      this.encoding = true
-      const videoPath = this.items[0]
-      const idName = getNameFromFullname(videoPath.split('\\').pop() as string)
-      await databaseService.videoStatus.updateOne(
-        { name: idName },
-        {
-          $set: { status: EncodingStatus.Processing, message: 'Processing' },
-          $currentDate: { updated_at: true }
-        }
-      )
-      try {
-        console.log('--------------------------------')
-        console.log('Start encoding video: ', videoPath)
-        await encodeHLSWithMultipleVideoStreams(videoPath)
-        this.items.shift()
-        const files = getFiles(path.resolve(UPLOAD_VIDEO_DIR, idName))
-        const basePath = path.resolve(UPLOAD_VIDEO_DIR, idName).replace(/\\/g, '/')
-        await Promise.all(
-          files.map((filepath) => {
-            const normalizedFilepath = filepath.replace(/\\/g, '/')
-            const filename = normalizedFilepath.replace(basePath, 'videos-hls/' + idName)
-            return uploadFileToS3({
-              filename,
-              filepath,
-              contentType: mime.getType(filepath) as string
-            })
-          })
-        )
-        fs.rmSync(path.resolve(UPLOAD_VIDEO_DIR, idName), { recursive: true })
-        await databaseService.videoStatus.updateOne(
-          { name: idName },
-          {
-            $set: { status: EncodingStatus.Success, message: 'Success' },
-            $currentDate: { updated_at: true }
-          }
-        )
-        console.log(`Encoded video success: ${videoPath}`)
-        console.log('--------------------------------')
-      } catch (error) {
-        await databaseService.videoStatus
-          .updateOne(
-            { name: idName },
-            {
-              $set: { status: EncodingStatus.Failed, message: 'Failed' },
-              $currentDate: { updated_at: true }
-            }
-          )
-          .catch((error) => {
-            console.log('Error updating video status: ', error)
-          })
-        console.log(`Encoded video failed: ${videoPath}`)
-        console.log('--------------------------------')
-      } finally {
-        this.encoding = false
-        this.processEncode()
-      }
-    } else {
-      console.log('Encode video queue is empty')
-    }
-  }
-}
-
-const queue = new Queue()
 
 class MediasService {
   async uploadImages(req: Request) {
@@ -158,7 +65,22 @@ class MediasService {
     const result: Media[] = await Promise.all(
       files.map(async (file) => {
         const newName = getNameFromFullname(file.newFilename)
-        queue.enqueue(file.filepath)
+        const videoStatus = await databaseService.videoStatus.insertOne(
+          new VideoStatus({
+            name: newName,
+            status: 0,
+            message: 'Pending'
+          })
+        )
+
+        await addVideoJob({
+          videoId: newName,
+          videoStatusId: videoStatus.insertedId.toString(),
+          filepath: file.filepath,
+          idName: newName,
+          userId: ''
+        })
+
         return {
           url: isProduction
             ? `${process.env.HOST}/static/video-hls/${newName}/master.m3u8`

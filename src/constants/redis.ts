@@ -11,6 +11,19 @@ export const REDIS_CONFIG = {
   lazyConnect: true
 } as const
 
+export const BULLMQ_REDIS_CONFIG = {
+  host: process.env.REDIS_HOST || 'localhost',
+  port: Number(process.env.REDIS_PORT) || 6379,
+  password: process.env.REDIS_PASSWORD,
+  maxRetriesPerRequest: null
+} as const
+
+export const REDIS_CONNECTION = {
+  host: process.env.REDIS_HOST || 'localhost',
+  port: Number(process.env.REDIS_PORT) || 6379,
+  password: process.env.REDIS_PASSWORD
+}
+
 export const CACHE_KEYS = {
   feed: (userId: string) => `feed:${userId}`,
   tweet: (tweetId: string) => `tweet:${tweetId}`,

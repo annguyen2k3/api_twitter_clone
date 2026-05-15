@@ -15,6 +15,7 @@ import { ErrorWithStatus } from '~/models/Errors'
 import { HTTP_STATUS } from '~/constants/httpStatus'
 import emailService from './email.services'
 import { emitToUser } from '~/utils/socket'
+import { addEmailJob } from './emailQueue.service'
 
 config()
 
@@ -148,7 +149,11 @@ class UsersService {
         user_id: new ObjectId(user_id)
       })
     )
-    await emailService.sendVerifyRegisterEmail(payload.email, email_verify_token)
+    await addEmailJob({
+      to: payload.email,
+      template: 'verify',
+      emailVerifyToken: email_verify_token
+    })
     return {
       access_token,
       refresh_token
@@ -247,12 +252,16 @@ class UsersService {
       verify: UserVerifyStatus.Unverified
     })
 
-    await emailService.sendVerifyRegisterEmail(email, email_verify_token)
-
     await databaseService.users.updateOne(
       { _id: new ObjectId(userId) },
       { $set: { email_verify_token: email_verify_token }, $currentDate: { updated_at: true } }
     )
+
+    await addEmailJob({
+      to: email,
+      template: 'resend_verify',
+      emailVerifyToken: email_verify_token
+    })
     return {
       message: USER_MESSAGES.RESEND_VERIFY_EMAIL_SUCCESS
     }
@@ -273,7 +282,11 @@ class UsersService {
       { $set: { forgot_password_token: forgot_password_token }, $currentDate: { updated_at: true } }
     )
 
-    await emailService.sendForgotPasswordEmail(email, forgot_password_token)
+    await addEmailJob({
+      to: email,
+      template: 'forgot_password',
+      forgotPasswordToken: forgot_password_token
+    })
     return {
       message: USER_MESSAGES.CHECK_EMAIL_TO_RESET_PASSWORD
     }
