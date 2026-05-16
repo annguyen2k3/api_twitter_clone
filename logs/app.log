@@ -60,3 +60,30 @@
 2026-05-16 14:40:23.621 [[32minfo[39m]: [32mConnected to MongoDB[39m {"service":"database","host":"MongoDB Atlas","database":"twitter"}
 2026-05-16 14:40:23.627 [[32minfo[39m]: [32mEmail queue initialized successfully[39m {"service":"queue"}
 2026-05-16 14:40:23.628 [[32minfo[39m]: [32mVideo queue initialized successfully[39m {"service":"queue"}
+2026-05-16 22:46:16.469 [[31merror[39m]: [31muncaughtException: Missing parameter name at index 12: /new-feeds/*; visit https://git.new/pathToRegexpError for info[39m
+[31mTypeError: Missing parameter name at index 12: /new-feeds/*; visit https://git.new/pathToRegexpError for info[39m
+[31m    at name (D:\2.Code_Workspace\api_twitter_clone\node_modules\path-to-regexp\src\index.ts:225:13)[39m
+[31m    at parse (D:\2.Code_Workspace\api_twitter_clone\node_modules\path-to-regexp\src\index.ts:242:62)[39m
+[31m    at pathToRegexp (D:\2.Code_Workspace\api_twitter_clone\node_modules\path-to-regexp\src\index.ts:480:54)[39m
+[31m    at Object.match (D:\2.Code_Workspace\api_twitter_clone\node_modules\path-to-regexp\src\index.ts:438:28)[39m
+[31m    at matcher (D:\2.Code_Workspace\api_twitter_clone\node_modules\router\lib\layer.js:86:23)[39m
+[31m    at new Layer (D:\2.Code_Workspace\api_twitter_clone\node_modules\router\lib\layer.js:93:62)[39m
+[31m    at Function.route (D:\2.Code_Workspace\api_twitter_clone\node_modules\router\index.js:428:17)[39m
+[31m    at Function.route (D:\2.Code_Workspace\api_twitter_clone\node_modules\express\lib\application.js:257:22)[39m
+[31m    at app.<computed> [as get] (D:\2.Code_Workspace\api_twitter_clone\node_modules\express\lib\application.js:478:22)[39m
+[31m    at <anonymous> (D:\2.Code_Workspace\api_twitter_clone\src\index.ts:72:7)[39m {"error":{"originalPath":"/new-feeds/*"},"exception":true,"date":"Sat May 16 2026 22:46:16 GMT+0700 (Indochina Time)","process":{"pid":3920,"uid":null,"gid":null,"cwd":"D:\\2.Code_Workspace\\api_twitter_clone","execPath":"C:\\nvm4w\\nodejs\\node.exe","version":"v22.14.0","argv":["C:\\nvm4w\\nodejs\\node.exe","D:\\2.Code_Workspace\\api_twitter_clone\\src\\index.ts","--development"],"memoryUsage":{"rss":170582016,"heapTotal":81518592,"heapUsed":51553904,"external":24064503,"arrayBuffers":18813583}},"os":{"loadavg":[0,0,0],"uptime":220636.109},"trace":[{"column":13,"file":"D:\\2.Code_Workspace\\api_twitter_clone\\node_modules\\path-to-regexp\\src\\index.ts","function":"name","line":225,"method":null,"native":false},{"column":62,"file":"D:\\2.Code_Workspace\\api_twitter_clone\\node_modules\\path-to-regexp\\src\\index.ts","function":"parse","line":242,"method":null,"native":false},{"column":54,"file":"D:\\2.Code_Workspace\\api_twitter_clone\\node_modules\\path-to-regexp\\src\\index.ts","function":"pathToRegexp","line":480,"method":null,"native":false},{"column":28,"file":"D:\\2.Code_Workspace\\api_twitter_clone\\node_modules\\path-to-regexp\\src\\index.ts","function":"Object.match","line":438,"method":"match","native":false},{"column":23,"file":"D:\\2.Code_Workspace\\api_twitter_clone\\node_modules\\router\\lib\\layer.js","function":"matcher","line":86,"method":null,"native":false},{"column":62,"file":"D:\\2.Code_Workspace\\api_twitter_clone\\node_modules\\router\\lib\\layer.js","function":"new Layer","line":93,"method":null,"native":false},{"column":17,"file":"D:\\2.Code_Workspace\\api_twitter_clone\\node_modules\\router\\index.js","function":"Function.route","line":428,"method":"route","native":false},{"column":22,"file":"D:\\2.Code_Workspace\\api_twitter_clone\\node_modules\\express\\lib\\application.js","function":"Function.route","line":257,"method":"route","native":false},{"column":22,"file":"D:\\2.Code_Workspace\\api_twitter_clone\\node_modules\\express\\lib\\application.js","function":"app.<computed> [as get]","line":478,"method":"<computed> [as get]","native":false},{"column":7,"file":"D:\\2.Code_Workspace\\api_twitter_clone\\src\\index.ts","function":"<anonymous>","line":72,"method":null,"native":false}]}
+TypeError: Missing parameter name at index 12: /new-feeds/*; visit https://git.new/pathToRegexpError for info
+    at name (D:\2.Code_Workspace\api_twitter_clone\node_modules\path-to-regexp\src\index.ts:225:13)
+    at parse (D:\2.Code_Workspace\api_twitter_clone\node_modules\path-to-regexp\src\index.ts:242:62)
+    at pathToRegexp (D:\2.Code_Workspace\api_twitter_clone\node_modules\path-to-regexp\src\index.ts:480:54)
+    at Object.match (D:\2.Code_Workspace\api_twitter_clone\node_modules\path-to-regexp\src\index.ts:438:28)
+    at matcher (D:\2.Code_Workspace\api_twitter_clone\node_modules\router\lib\layer.js:86:23)
+    at new Layer (D:\2.Code_Workspace\api_twitter_clone\node_modules\router\lib\layer.js:93:62)
+    at Function.route (D:\2.Code_Workspace\api_twitter_clone\node_modules\router\index.js:428:17)
+    at Function.route (D:\2.Code_Workspace\api_twitter_clone\node_modules\express\lib\application.js:257:22)
+    at app.<computed> [as get] (D:\2.Code_Workspace\api_twitter_clone\node_modules\express\lib\application.js:478:22)
+    at <anonymous> (D:\2.Code_Workspace\api_twitter_clone\src\index.ts:72:7)
+2026-05-16 22:46:46.533 [[32minfo[39m]: [32mSwagger UI available at /api-docs[39m {"path":"/api-docs"}
+2026-05-16 22:46:46.541 [[32minfo[39m]: [32mServer started[39m {"port":"4000","env":"development"}
+2026-05-16 22:46:47.234 [[32minfo[39m]: [32mConnected to MongoDB[39m {"service":"database","host":"MongoDB Atlas","database":"twitter"}
+2026-05-16 22:46:52.248 [[33mwarn[39m]: [33mRedis not connected. Queues are disabled.[39m

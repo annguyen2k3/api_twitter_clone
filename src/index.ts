@@ -63,17 +63,6 @@ app.get('/', (req, res) => {
   })
 })
 
-const clientUrl = process.env.CLIENT_URL || 'http://localhost:5500'
-const frontendPaths = ['/new-feeds', '/upload-images', '/profile', '/login', '/register']
-frontendPaths.forEach((path) => {
-  app.get(path, (req, res) => {
-    res.redirect(`${clientUrl}${path}`)
-  })
-  app.get(`${path}/*`, (req, res) => {
-    res.redirect(`${clientUrl}${req.path}`)
-  })
-})
-
 indexRoutes(app)
 
 setupSwagger(app)
