@@ -43,6 +43,37 @@ app.use(requestLogger)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain').send('User-agent: *\nDisallow: /')
+})
+
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end()
+})
+
+app.get('/favicon.png', (req, res) => {
+  res.status(204).end()
+})
+
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Twitter Clone API Server',
+    version: '1.0.0',
+    documentation: '/api-docs'
+  })
+})
+
+const clientUrl = process.env.CLIENT_URL || 'http://localhost:5500'
+const frontendPaths = ['/new-feeds', '/upload-images', '/profile', '/login', '/register']
+frontendPaths.forEach((path) => {
+  app.get(path, (req, res) => {
+    res.redirect(`${clientUrl}${path}`)
+  })
+  app.get(`${path}/*`, (req, res) => {
+    res.redirect(`${clientUrl}${req.path}`)
+  })
+})
+
 indexRoutes(app)
 
 setupSwagger(app)
