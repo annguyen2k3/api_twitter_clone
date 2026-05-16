@@ -15,8 +15,12 @@ const options: swaggerJsdoc.Options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
+        url: 'https://api-twitter-clone.io.vn',
         description: 'Development Server'
+      },
+      {
+        url: 'http://localhost:4000',
+        description: 'Local Server'
       }
     ],
     tags: [
