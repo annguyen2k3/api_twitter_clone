@@ -3,6 +3,7 @@ import RedisStore from 'rate-limit-redis'
 import { Request, Response } from 'express'
 import redisService from '~/services/redis.services'
 import { RATE_LIMIT_WINDOW, RATE_LIMIT } from '~/constants/redis'
+import { rateLimitLogger as logger } from '~/utils/logger'
 
 interface RateLimiterOptions {
   max?: number
@@ -11,6 +12,12 @@ interface RateLimiterOptions {
 
 const rateLimitResponse = (req: Request, res: Response) => {
   const rateLimitInfo = req.rateLimit
+  logger.warn('Rate limit exceeded', {
+    ip: req.ip,
+    path: req.path,
+    limit: rateLimitInfo.limit,
+    window: '15 minutes'
+  })
   res.status(429).json({
     message: 'Too many requests, please try again later.',
     error: 'TOO_MANY_REQUESTS',

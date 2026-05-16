@@ -23,6 +23,7 @@ import databaseService from '~/services/database.services'
 import { ObjectId } from 'mongodb'
 import { ErrorWithStatus } from '~/models/Errors'
 import { UserVerifyStatus } from '~/constants/enums'
+import { logger } from '~/utils/logger'
 
 // POST: /users/register
 export const registerController = async (
@@ -116,7 +117,7 @@ export const resendVerifyEmailController = async (req: Request, res: Response) =
     })
   }
   if (user.verify === UserVerifyStatus.Verified) {
-    console.log('Email already verified before')
+    logger.debug('Email already verified', { userId: user_id })
     return res.status(HTTP_STATUS.OK).json({
       message: USER_MESSAGES.EMAIL_ALREADY_VERIFIED_BEFORE
     })

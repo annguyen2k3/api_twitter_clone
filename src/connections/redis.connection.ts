@@ -51,11 +51,6 @@ class RedisConnection {
       })
     }
 
-    if (this.client.status === 'ready') {
-      this._isConnected = true
-      return true
-    }
-
     return this._isConnected
   }
 

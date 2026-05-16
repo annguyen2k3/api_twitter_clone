@@ -1,6 +1,7 @@
 import { Application } from 'express'
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from './swagger.config'
+import { logger } from '~/utils/logger'
 
 export const setupSwagger = (app: Application) => {
   app.use(
@@ -54,5 +55,5 @@ export const setupSwagger = (app: Application) => {
     res.send(swaggerSpec)
   })
 
-  console.log('📚 Swagger UI available at http://localhost:3000/api-docs')
+  logger.info('Swagger UI available at /api-docs', { path: '/api-docs' })
 }

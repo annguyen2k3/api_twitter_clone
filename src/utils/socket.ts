@@ -11,6 +11,7 @@ import { HTTP_STATUS } from '~/constants/httpStatus'
 import Conversation from '~/models/schemas/Conversations.schemas'
 import databaseService from '~/services/database.services'
 import conversationCacheService from '~/services/conversationCache.services'
+import { logger } from '~/utils/logger'
 
 let io: Server
 const users: {
@@ -56,14 +57,19 @@ const initSocket = (httpServer: ServerHttp) => {
       })
     }
   })
+
   io.on('connection', (socket) => {
-    console.log(`user ${socket.id} connected`)
     const { user_id } = socket.handshake.auth.decoded_authorization as TokenPayload
     users[user_id] = {
       socket_id: socket.id
     }
     socket.join(user_id)
-    console.log(users)
+    logger.info('Socket connected', {
+      socketId: socket.id,
+      userId: user_id,
+      ip: socket.handshake.address
+    })
+    logger.debug('Active socket users', { count: Object.keys(users).length })
 
     socket.use(async (packet, next) => {
       const { accessToken } = socket.handshake.auth
@@ -98,6 +104,12 @@ const initSocket = (httpServer: ServerHttp) => {
 
       await conversationCacheService.invalidateConversation(sender_id, receiver_id)
 
+      logger.debug('Message sent', {
+        socketId: socket.id,
+        senderId: sender_id,
+        receiverId: receiver_id
+      })
+
       io.to(receiver_id).emit('receive_message', {
         payload: conversation
       })
@@ -108,7 +120,10 @@ const initSocket = (httpServer: ServerHttp) => {
 
     socket.on('disconnect', () => {
       delete users[user_id]
-      console.log(`user ${socket.id} disconnected`)
+      logger.info('Socket disconnected', {
+        socketId: socket.id,
+        userId: user_id
+      })
     })
   })
 }

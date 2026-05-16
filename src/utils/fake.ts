@@ -8,6 +8,7 @@ import User from '~/models/schemas/User.schemas'
 import { hashPassword } from './bcrypt'
 import Follower from '~/models/schemas/Follower.schemas'
 import tweetsService from '~/services/tweets.services'
+import { logger } from './logger'
 
 // Mật khẩu cho các fake user
 const PASSWORD = 'User123@'
@@ -43,7 +44,7 @@ const createRandomTweet = () => {
 const users: RegisterReqBody[] = faker.helpers.multiple(createRandomUser, { count: USER_COUNT })
 
 const insertMultipleUsers = async (users: RegisterReqBody[]) => {
-  console.log('Inserting multiple users...')
+  logger.info('Inserting multiple users', { count: users.length })
   const result = await Promise.all(
     users.map(async (user) => {
       const user_id = new ObjectId()
@@ -60,13 +61,13 @@ const insertMultipleUsers = async (users: RegisterReqBody[]) => {
       return user_id
     })
   )
-  console.log(`Created ${result.length} users`)
+  logger.info('Users created', { count: result.length })
   return result
 }
 
 const followMultipleUsers = async (user_id: ObjectId, followed_user_ids: ObjectId[]) => {
-  console.log('Start following multiple users...')
-  const result = await Promise.all(
+  logger.info('Creating followers', { followerId: user_id.toString(), count: followed_user_ids.length })
+  await Promise.all(
     followed_user_ids.map(async (followed_user_id) => {
       await databaseService.followers.insertOne(
         new Follower({
@@ -76,24 +77,25 @@ const followMultipleUsers = async (user_id: ObjectId, followed_user_ids: ObjectI
       )
     })
   )
-  console.log(`Followed ${result.length} users`)
+  logger.info('Followers created', { count: followed_user_ids.length })
 }
 
 const insertMultipleTweets = async (user_ids: ObjectId[]) => {
-  console.log('Creating tweets...')
-  console.log('Counting...')
+  logger.info('Creating tweets', { userCount: user_ids.length })
   let count = 0
-  const result = await Promise.all(
-    user_ids.map(async (id, index) => {
+  await Promise.all(
+    user_ids.map(async (id) => {
       await Promise.all([
         tweetsService.createTweet(id.toString(), createRandomTweet()),
         tweetsService.createTweet(id.toString(), createRandomTweet())
       ])
       count += 2
-      console.log(`Created ${count} tweets`)
+      if (count % 50 === 0) {
+        logger.info('Tweets progress', { created: count })
+      }
     })
   )
-  return result
+  logger.info('Tweets created', { total: count })
 }
 
 insertMultipleUsers(users).then((user_ids) => {

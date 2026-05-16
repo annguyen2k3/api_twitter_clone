@@ -11,6 +11,8 @@ import { createServer } from 'http'
 import initSocket from './utils/socket'
 import { initEmailQueue, getEmailQueue } from './services/emailQueue.service'
 import { initVideoQueue, getVideoQueue } from './services/videoQueue.service'
+import { logger } from './utils/logger'
+import { requestLogger } from './middlewares/requestLogger.middleware'
 
 dotenv.config()
 
@@ -31,22 +33,19 @@ databaseService.connect().then(async () => {
     initEmailQueue()
     initVideoQueue()
   } else {
-    console.warn('[App] Redis not connected. Queues are disabled.')
+    logger.warn('Redis not connected. Queues are disabled.')
   }
 })
 
 app.use(cors())
 
+app.use(requestLogger)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 indexRoutes(app)
 
 setupSwagger(app)
-
-app.get('/', (req, res) => {
-  res.send('Hello World')
-})
 
 app.get('/health/queues', async (req, res) => {
   const emailQueue = getEmailQueue()
@@ -81,5 +80,8 @@ app.use(defaultErrorHandler)
 initSocket(httpServer)
 
 httpServer.listen(process.env.PORT || 3000, () => {
-  console.log('Server is running on port', process.env.PORT || 3000)
+  logger.info('Server started', {
+    port: process.env.PORT || 3000,
+    env: process.env.NODE_ENV || 'development'
+  })
 })

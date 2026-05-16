@@ -10,6 +10,7 @@ import Hashtag from '~/models/schemas/Hashtag.schemas'
 import Bookmark from '~/models/schemas/Bookmark.schemas'
 import Like from '~/models/schemas/Like.schemas'
 import Conversation from '~/models/schemas/Conversations.schemas'
+import { dbLogger as logger } from '~/utils/logger'
 
 config()
 
@@ -27,9 +28,15 @@ class DatabaseService {
   async connect() {
     try {
       await this.db.command({ ping: 1 })
-      console.log('Connected to MongoDB')
+      logger.info('Connected to MongoDB', {
+        host: process.env.DB_HOST || 'MongoDB Atlas',
+        database: process.env.DB_NAME
+      })
     } catch (error) {
-      console.error('Error connecting to MongoDB', error)
+      logger.error('MongoDB connection failed', {
+        error: error instanceof Error ? error.message : String(error),
+        host: process.env.DB_HOST || 'MongoDB Atlas'
+      })
       throw error
     }
   }

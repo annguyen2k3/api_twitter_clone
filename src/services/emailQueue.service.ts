@@ -7,6 +7,7 @@ import {
 } from '~/constants/queue'
 import { BULLMQ_REDIS_CONFIG } from '~/constants/redis'
 import emailService from '~/services/email.services'
+import { queueLogger as logger } from '~/utils/logger'
 
 export interface EmailJobData {
   to: string
@@ -29,7 +30,7 @@ function createBullMQConnection(): Redis {
 
 export function initEmailQueue(): { queue: Queue<EmailJobData> | null; worker: Worker<EmailJobData> | null } {
   if (!isBullMQCompatible()) {
-    console.warn('[EmailQueue] BullMQ requires Redis >= 5.0.0. Email queue disabled.')
+    logger.warn('BullMQ requires Redis >= 5.0.0. Email queue disabled.')
     return { queue: null, worker: null }
   }
 
@@ -46,22 +47,46 @@ export function initEmailQueue(): { queue: Queue<EmailJobData> | null; worker: W
       async (job) => {
         const { to, template, emailVerifyToken, forgotPasswordToken } = job.data
 
-        switch (template) {
-          case 'verify':
-          case 'resend_verify':
-            if (!emailVerifyToken) {
-              throw new Error('Missing emailVerifyToken for verify/resend_verify email')
-            }
-            await emailService.sendVerifyRegisterEmail(to, emailVerifyToken)
-            break
-          case 'forgot_password':
-            if (!forgotPasswordToken) {
-              throw new Error('Missing forgotPasswordToken for forgot_password email')
-            }
-            await emailService.sendForgotPasswordEmail(to, forgotPasswordToken)
-            break
-          default:
-            throw new Error(`Unknown email template: ${template}`)
+        logger.info('Processing email job', {
+          jobId: job.id,
+          to,
+          template,
+          attempt: job.attemptsMade + 1
+        })
+
+        try {
+          switch (template) {
+            case 'verify':
+            case 'resend_verify':
+              if (!emailVerifyToken) {
+                throw new Error('Missing emailVerifyToken for verify/resend_verify email')
+              }
+              await emailService.sendVerifyRegisterEmail(to, emailVerifyToken)
+              break
+            case 'forgot_password':
+              if (!forgotPasswordToken) {
+                throw new Error('Missing forgotPasswordToken for forgot_password email')
+              }
+              await emailService.sendForgotPasswordEmail(to, forgotPasswordToken)
+              break
+            default:
+              throw new Error(`Unknown email template: ${template}`)
+          }
+
+          logger.info('Email sent successfully', {
+            jobId: job.id,
+            to,
+            template
+          })
+        } catch (error) {
+          logger.error('Email send failed', {
+            jobId: job.id,
+            to,
+            template,
+            error: error instanceof Error ? error.message : String(error),
+            attempt: job.attemptsMade + 1
+          })
+          throw error
         }
       },
       {
@@ -71,28 +96,37 @@ export function initEmailQueue(): { queue: Queue<EmailJobData> | null; worker: W
     )
 
     emailWorker.on('completed', (job) => {
-      console.log(`[EmailWorker] Job ${job.id} completed for ${job.data.to}`)
+      logger.info('Email job completed', { jobId: job.id })
     })
 
     emailWorker.on('failed', (job, err) => {
-      console.error(`[EmailWorker] Job ${job?.id} failed:`, err.message)
+      logger.error('Email job failed permanently', {
+        jobId: job?.id,
+        error: err.message,
+        attempts: job?.attemptsMade
+      })
     })
 
     emailWorker.on('error', (err) => {
-      console.error('[EmailWorker] Error:', err.message)
+      logger.error('Email worker error', { error: err.message })
     })
 
-    console.log('[EmailQueue] Initialized successfully')
+    logger.info('Email queue initialized successfully')
     return { queue: emailQueue, worker: emailWorker }
   } catch (error) {
-    console.error('[EmailQueue] Failed to initialize:', error)
+    logger.error('Email queue initialization failed', {
+      error: error instanceof Error ? error.message : String(error)
+    })
     return { queue: null, worker: null }
   }
 }
 
 export async function addEmailJob(data: EmailJobData): Promise<void> {
   if (!emailQueue) {
-    console.warn('[EmailQueue] Queue not available, sending email directly')
+    logger.warn('Email queue not available, sending email directly', {
+      template: data.template,
+      to: data.to
+    })
     if (data.template === 'forgot_password' && data.forgotPasswordToken) {
       await emailService.sendForgotPasswordEmail(data.to, data.forgotPasswordToken)
     } else if (data.emailVerifyToken) {
@@ -108,6 +142,7 @@ export async function addEmailJob(data: EmailJobData): Promise<void> {
       : 'resend-verify'
 
   await emailQueue.add(jobName, data)
+  logger.debug('Email job queued', { template: data.template, to: data.to })
 }
 
 export function getEmailQueue(): Queue<EmailJobData> | null {
